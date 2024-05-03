@@ -1,0 +1,5 @@
+
+ROOT_DIR=/wine
+
+help:
+	echo "help"
