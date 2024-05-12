@@ -2,16 +2,16 @@
 include ../Makefile.common
 
 CENTOS_IMAGE_FROM=centos:7.9.2009
-CENTOS_IMAGE=devc-centos-7.9:latest
+DEVC_CENTOS_IMAGE=devc-centos-7.9:latest
+
+CENTOS_IMAGE=$(DEVC_CENTOS_IMAGE)
 CENTOS_NAME=centos7
 CENTOS_DATA_DIR=$(ROOT_DIR)/var/centos
-
-.PHONY: build start stop
 
 pull:
 	docker pull $(CENTOS_IMAGE)
 
-build:
+build: 
 	docker build -t $(CENTOS_IMAGE) .
 
 start: build
