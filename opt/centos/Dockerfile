@@ -22,9 +22,6 @@ RUN yum install -y iptables ipset iproute tree
 RUN yum install -y perl-ExtUtils-MakeMaker ncurses-devel
 
 # zsh
-ENV HOME=/root
-WORKDIR ${HOME}
-ENV ZSH_DIR=${HOME}/.zsh
 # 编译zsh，默认安装在：/usr/local/bin/zsh
 # 参考：https://blog.csdn.net/u012605514/article/details/121797773
 COPY zsh/zsh-5.8.tar.xz /tmp/
@@ -37,16 +34,7 @@ RUN cd /tmp \
     && rm -rf /tmp/zsh-* \
     && echo "/usr/local/bin/zsh" >> /etc/shells
 
-# 配置zsh
-# 参考：https://dev.to/hbenvenutti/using-zsh-without-omz-4gch
-# WORKDIR ${HOME}
-# ENV ZSH_DIR=${HOME}/.zsh
-# COPY zsh ${ZSH_DIR}
-# RUN touch ${ZSH_DIR}/.zsh_history \
-#     && mv ${ZSH_DIR}/.zshrc ${HOME}/.zshrc \
-#     && chsh -s $(which zsh)
-
-# oh my zsh 
+# 配置 oh my zsh 
 COPY zsh/ohmyzsh-master.zip /tmp/
 RUN cd /tmp \
     && unzip ohmyzsh-master.zip \
@@ -58,29 +46,29 @@ RUN cd /tmp \
 
 RUN ln -s $(which zsh) /bin/zsh
 
+# golang and goproxy
+RUN cd /tmp \
+    && wget https://golang.google.cn/dl/go1.22.3.linux-amd64.tar.gz \
+    && tar -zxf go1.22.3.linux-amd64.tar.gz -C /usr/local \
+    && rm -rf ./go*
+ENV PATH="$PATH:/usr/local/go/bin"
+RUN go env -w GOPROXY=https://goproxy.cn,direct \
+    && go env -w GO111MODULE=on \
+    && go env -w GOSUMDB='off'
+
+# gitconfig
+COPY .gitconfig /root/.gitconfig
+
+# 其他工具
+# RUN yum install -y tree
+
+# python pip
+# RUN yum install -y python-pip 
+
 # 配置ssh 
 # RUN yum install -y openssh-server
 # RUN sed -i 's/#PermitRootLogin yes/PermitRootLogin yes/g' /etc/ssh/sshd_config
 # RUN sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/g' /etc/ssh/sshd_config
-
-# golang goproxy
-# RUN cd /tmp \
-#     && wget https://golang.google.cn/dl/go1.22.3.linux-amd64.tar.gz \
-#     && tar -zxf go1.22.3.linux-amd64.tar.gz -C /usr/local \
-#     && rm -rf ./go*
-# ENV PATH="$PATH:/usr/local/go/bin"
-# RUN go env -w GOPROXY=https://goproxy.cn,direct \
-#     && go env -w GO111MODULE=on \
-#     && go env -w GOSUMDB='off'
-
-# gitconfig
-# COPY .gitconfig /root/.gitconfig
-
-# 其他工具
-# RUN yum install -y iptables ipset iproute tree
-
-# python pip
-# RUN yum install -y python-pip 
 
 # Docker服务器开放的端口，供容器外部连接使用(在启动容器时做端口映射)
 # EXPOSE 22   
