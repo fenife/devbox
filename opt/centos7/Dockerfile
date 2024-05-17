@@ -50,18 +50,6 @@ RUN cd /tmp/ \
     && make install_sw install_ssldirs \
     && rm -rf /tmp/openssl-*
 
-# git
-# https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
-# COPY pkg/git-2.45.0.tar.gz /tmp/
-# RUN cd /tmp/ \
-#     && tar -xzf git-2.45.0.tar.gz \
-#     && cd git-2.45.0 \
-#     && make configure \
-#     && ./configure --prefix=/usr \
-#     && make all \
-#     && make install \
-#     && rm -rf /tmp/git-*
-
 # zsh
 # 安装zsh，默认安装在：/usr/local/bin/zsh
 # 参考：https://blog.csdn.net/u012605514/article/details/121797773
@@ -165,10 +153,19 @@ COPY pip.conf ${HOME_DIR}/.pip/pip.conf
 
 # install dind
 # https://download.docker.com/linux/static/stable/x86_64/docker-19.03.0.tgz
-
+COPY dind/daemon.json /etc/docker/
+COPY dind/supervisor/docker.ini /etc/supervisord.d/
+COPY dind/startup.sh /wine/opt/
+COPY dind/docker-19.03.0.tgz /tmp/dind/
+RUN set -eux; \
+    cd /tmp/dind/ \
+    && tar -xzf docker-19.03.0.tgz --strip-components 1 -C /usr/local/bin \
+    && chmod +x /wine/opt/startup.sh \
+    && rm -rf /tmp/dind
 
 WORKDIR /wine
 
-CMD ["/bin/zsh"]
+ENTRYPOINT ["/wine/opt/startup.sh"]
 
+CMD ["/bin/zsh"]
 
