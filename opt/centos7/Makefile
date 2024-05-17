@@ -14,7 +14,7 @@ pull:
 build: 
 	docker build -t $(CENTOS_IMAGE) .
 
-start: build
+start: 
 	docker run --rm -it --privileged \
 	--name $(CENTOS_NAME) --hostname $(CENTOS_NAME) \
 	$(CENTOS_IMAGE)

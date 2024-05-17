@@ -12,49 +12,95 @@ ENV TERM xterm
 # home dir
 ENV HOME_DIR /root
 
+############################################################
+# install base softwares
+############################################################
+
 # repo
 ADD repo/centos-base-ali.repo /etc/yum.repos.d/CentOS-Base.repo
 ADD repo/centos-epel-ali.repo /etc/yum.repos.d/epel.repo
 
-# 常用命令下载
-RUN yum install -y curl wget tar bzip2 unzip gcc gcc-c++ git make yum-utils htop man
-RUN yum install -y vim vim-enhanced passwd sudo hostname net-tools rsync \
-    automake cmake patch logrotate python-devel libpng-devel \
-    libjpeg-devel pwgen mysql-client redis
-RUN yum install -y iptables ipset iproute tree
-RUN yum install -y perl-ExtUtils-MakeMaker ncurses-devel
+# 基础工具下载
+RUN yum install -y curl wget tar bzip2 unzip vim passwd sudo tree rsync man git tig \
+    # 编译
+    gcc gcc-c++ make yum-utils automake cmake \
+    # 网络
+    iptables ipset iproute hostname net-tools telnet nc tcpdump route bridge-utils traceroute \
+    # 性能
+    htop vmstat iostat pidstat sysstat strace lsof \
+    # 语言、组件
+    python-pip mysql-client redis openssh-server openssh-client \
+    # 依赖
+    zlib libffi python-devel libpng-devel libjpeg-devel openssl-devel mysql-devel \
+    zlib-devel libffi-devel bzip2-devel sqlite-devel readline-devel tk-devel \
+    perl-ExtUtils-MakeMaker ncurses-devel curl-devel expat-devel gettext-devel \
+    # dind
+    supervisor NetworkManager python-setuptools iptables-services \
+    # --nogpgcheck
+    # && groupinstall "Development Tools" \
+    && yum clean all
+
+# install openssl
+COPY pkg/openssl-1.1.1w.tar.gz /tmp/
+RUN cd /tmp/ \
+    && tar -xzf openssl-1.1.1w.tar.gz \
+    && cd openssl-1.1.1w  \
+    && ./config --prefix=/usr \
+    && make \
+    && make install_sw install_ssldirs \
+    && rm -rf /tmp/openssl-*
+
+# git
+# https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
+# COPY pkg/git-2.45.0.tar.gz /tmp/
+# RUN cd /tmp/ \
+#     && tar -xzf git-2.45.0.tar.gz \
+#     && cd git-2.45.0 \
+#     && make configure \
+#     && ./configure --prefix=/usr \
+#     && make all \
+#     && make install \
+#     && rm -rf /tmp/git-*
 
 # zsh
 # 安装zsh，默认安装在：/usr/local/bin/zsh
 # 参考：https://blog.csdn.net/u012605514/article/details/121797773
 COPY zsh/zsh-5.8.tar.xz /tmp/
 RUN cd /tmp \
-    && tar xvf zsh-5.8.tar.xz \
+    && tar -xf zsh-5.8.tar.xz \
     && cd zsh-5.8 \
     && ./configure --without-tcsetpgrp \
     && make \
     && make install \
-    && rm -rf /tmp/zsh-* \
-    && echo "/usr/local/bin/zsh" >> /etc/shells
+    && rm -rf /tmp/zsh-* 
+RUN ln -s $(which zsh) /bin/zsh \
+    && echo "/bin/zsh" >> /etc/shells
 
 # 安装 oh my zsh 
 COPY zsh/ohmyzsh-master.zip /tmp/
 RUN cd /tmp \
-    && unzip ohmyzsh-master.zip \
-    && rm -rf ohmyzsh-master.zip \
+    && unzip -q ohmyzsh-master.zip \
     && mv ohmyzsh-master ${HOME_DIR}/.oh-my-zsh \
     && cp ${HOME_DIR}/.oh-my-zsh/templates/zshrc.zsh-template ${HOME_DIR}/.zshrc \
-    && ln -s $(which zsh) /bin/zsh \
-    && chsh -s $(which zsh) 
+    && rm -rf /tmp/ohmyzsh-*
 
 # 安装 golang 
 RUN cd /tmp \
     && wget https://golang.google.cn/dl/go1.22.3.linux-amd64.tar.gz \
     && tar -zxf go1.22.3.linux-amd64.tar.gz -C /usr/local \
-    && rm -rf ./go*
+    && rm -rf /tmp/go*
 ENV PATH="$PATH:/usr/local/go/bin"
 
-# 安装最新git
+# install python3.12 with ssl
+COPY pkg/Python-3.12.0.tgz /tmp/
+RUN cd /tmp/ \
+    && tar -xzf Python-3.12.0.tgz \
+    && cd Python-3.12.0 \
+    && ./configure --prefix=/usr/local/python3.12 --with-ssl \
+    && make \
+    && make install \
+    && rm -rf /tmp/Python-*
+ENV PATH="$PATH:/usr/local/python3.12/bin"
 
 # 安装vscode
 # 对应以下版本：
@@ -65,53 +111,61 @@ ENV VSCODE_ID=8b3775030ed1a69b13e4f4c628c612102e30a681
 ENV VSCODE_BIN_DIR=${HOME_DIR}/.vscode-server/bin/${VSCODE_ID}
 COPY vscode/vscode-server-linux-x64-1.85.2.tar.gz /tmp/
 RUN mkdir -p ${VSCODE_BIN_DIR} \
-    && tar -zxf /tmp/vscode-server-linux-x64-1.85.2.tar.gz -C ${VSCODE_BIN_DIR} --strip 1 \
+    && tar -xzf /tmp/vscode-server-linux-x64-1.85.2.tar.gz -C ${VSCODE_BIN_DIR} --strip 1 \
     && rm /tmp/vscode-*
 
+############################################################
+# install modules and plugins
+############################################################
+
+# install golang dlv gopls staticcheck
+RUN go env -w GOPROXY=https://goproxy.cn,direct \
+    && go env -w GO111MODULE=on \
+    && go env -w GOSUMDB='off'
+RUN go install golang.org/x/tools/gopls@v0.15.3 \
+    && go install github.com/go-delve/delve/cmd/dlv@v1.22.1 \
+    && go install honnef.co/go/tools/cmd/staticcheck@v0.4.7 
+
 # 安装 vscode extensions
+COPY vscode/ext/* /tmp/vscode/ext/
+ENV VSCODE_BIN=${VSCODE_BIN_DIR}/bin/code-server
+RUN cd /tmp/vscode/ext/ \
+    # 传入 code-server 执行文件的路径，在脚本里遍历安装扩展文件
+    && ./install.sh ${VSCODE_BIN}
 
+############################################################
+# configs
+############################################################
 
-##############################
 # zsh config
-##############################
-
 # 自动补全
 ENV ZSH_CUSTOM=${HOME_DIR}/.oh-my-zsh/custom
-RUN mkdir -p ${ZSH_CUSTOM}/plugins/incr
+# RUN mkdir -p ${ZSH_CUSTOM}/plugins/incr
 COPY zsh/incr-0.2.zsh ${ZSH_CUSTOM}/plugins/incr/incr.zsh
-# 其他配置
+# zshr配置
 COPY zsh/ext.zsh /tmp/ 
-RUN cat /tmp/ext.zsh >> ${HOME_DIR}/.zshrc
-# 设置主题
-RUN sed -i "s/robbyrussell/ys/" ${HOME_DIR}/.zshrc 
+RUN cat /tmp/ext.zsh >> ${HOME_DIR}/.zshrc \
+    && rm -rf /tmp/*.zsh \
+    # 设置主题
+    && sed -i "s/robbyrussell/ys/" ${HOME_DIR}/.zshrc 
+# 切换shell
+RUN chsh -s $(which zsh) 
 
+# git config
+COPY .gitconfig /${HOME_DIR}/.gitconfig
 
-##############################
-# golang config
-##############################
-
-# RUN go env -w GOPROXY=https://goproxy.cn,direct \
-#     && go env -w GO111MODULE=on \
-#     && go env -w GOSUMDB='off'
-
-
-# gitconfig
-COPY .gitconfig /root/.gitconfig
-
-
-# 其他工具
-# RUN yum install -y tree
-
-# python pip
-# RUN yum install -y python-pip 
+# pip config
+COPY pip.conf ${HOME_DIR}/.pip/pip.conf
 
 # 配置ssh 
-# RUN yum install -y openssh-server
 # RUN sed -i 's/#PermitRootLogin yes/PermitRootLogin yes/g' /etc/ssh/sshd_config
 # RUN sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/g' /etc/ssh/sshd_config
-
 # Docker服务器开放的端口，供容器外部连接使用(在启动容器时做端口映射)
 # EXPOSE 22   
+
+# install dind
+# https://download.docker.com/linux/static/stable/x86_64/docker-19.03.0.tgz
+
 
 WORKDIR /wine
 
