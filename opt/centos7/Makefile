@@ -17,7 +17,7 @@ build:
 start: 
 	docker run --rm -it --privileged \
 	--name $(CENTOS_NAME) --hostname $(CENTOS_NAME) \
-	-v $(shell pwd)/dind:/wine/dind \
+	-v $(shell pwd)/../dind:/wine/dind \
 	$(CENTOS_IMAGE)
 
 stop:
