@@ -153,15 +153,15 @@ COPY pip.conf ${HOME_DIR}/.pip/pip.conf
 
 # install dind
 # https://download.docker.com/linux/static/stable/x86_64/docker-19.03.0.tgz
-COPY dind/daemon.json /etc/docker/
-COPY dind/supervisor/docker.ini /etc/supervisord.d/
-COPY dind/startup.sh /wine/opt/
-COPY dind/docker-19.03.0.tgz /tmp/dind/
+COPY docker/daemon.json /etc/docker/
+COPY docker/supervisor/docker.ini /etc/supervisord.d/
+COPY docker/startup.sh /wine/opt/
+COPY docker/docker-19.03.0.tgz /tmp/docker/
 RUN set -eux; \
-    cd /tmp/dind/ \
+    cd /tmp/docker/ \
     && tar -xzf docker-19.03.0.tgz --strip-components 1 -C /usr/local/bin \
     && chmod +x /wine/opt/startup.sh \
-    && rm -rf /tmp/dind
+    && rm -rf /tmp/docker
 
 WORKDIR /wine
 
