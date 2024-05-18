@@ -23,7 +23,7 @@ ADD repo/centos-epel-ali.repo /etc/yum.repos.d/epel.repo
 # 基础工具下载
 RUN yum install -y curl wget tar bzip2 unzip vim passwd sudo tree rsync man git tig \
     # 编译
-    gcc gcc-c++ make yum-utils automake cmake \
+    gcc gcc-c++ make yum-utils automake cmake autoconf rpm-build redhat-rpm-config \
     # 网络
     iptables ipset iproute hostname net-tools telnet nc tcpdump route bridge-utils traceroute \
     # 性能
@@ -31,9 +31,10 @@ RUN yum install -y curl wget tar bzip2 unzip vim passwd sudo tree rsync man git 
     # 语言、组件
     python-pip mysql-client redis openssh-server openssh-client \
     # 依赖
-    zlib libffi python-devel libpng-devel libjpeg-devel openssl-devel mysql-devel \
+    zlib libffi libtool python-devel libpng-devel libjpeg-devel openssl-devel mysql-devel \
     zlib-devel libffi-devel bzip2-devel sqlite-devel readline-devel tk-devel \
     perl-ExtUtils-MakeMaker ncurses-devel curl-devel expat-devel gettext-devel \
+    kernel-devel kernel-debug-devel \
     # dind
     supervisor NetworkManager python-setuptools iptables-services \
     # --nogpgcheck
@@ -167,18 +168,11 @@ RUN chmod +x /wine/opt/startup.sh \
     && chmod +x /usr/local/bin/docker-compose 
 
 # install openvswitch
-RUN yum install -y autoconf rpm-build redhat-rpm-config kernel-devel kernel-debug-devel libtool \
-    && yum clean all
-ENV rpmbuild_dir=
-COPY /openvswitch/openvswitch-2.5.2.tar.gz ${HOME_DIR}/rpmbuild/SOURCES/
-RUN set -eux; \
-    cd ${HOME_DIR}/rpmbuild/SOURCES \
-    && tar -xzf openvswitch-2.5.2.tar.gz \
-    && sed 's/openvswitch-kmod, //g' openvswitch-2.5.2/rhel/openvswitch.spec > openvswitch-2.5.2/rhel/openvswitch_no_kmod.spec \
-    && rpmbuild -bb --nocheck openvswitch-2.5.2/rhel/openvswitch_no_kmod.spec \
-    && yum localinstall ${HOME_DIR}/rpmbuild/RPMS/x86_64/openvswitch-2.5.2-1.x86_64.rpm \
-    && rm -rf /tmp/openvswitch-* \
-    && rm -rf ${HOME_DIR}/rpmbuild
+# see: https://blog.csdn.net/weixin_42072280/article/details/119764004
+RUN yum install -y epel-release \
+    && yum install -y centos-release-openstack-train \
+    && yum install -y openvswitch libibverbs \
+    && yum clean all 
 
 WORKDIR /wine
 
