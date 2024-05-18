@@ -151,17 +151,20 @@ COPY pip.conf ${HOME_DIR}/.pip/pip.conf
 # Docker服务器开放的端口，供容器外部连接使用(在启动容器时做端口映射)
 # EXPOSE 22   
 
-# install dind
+# install docker for dind
 # https://download.docker.com/linux/static/stable/x86_64/docker-19.03.0.tgz
-COPY docker/daemon.json /etc/docker/
-COPY docker/supervisor/docker.ini /etc/supervisord.d/
-COPY docker/startup.sh /wine/opt/
 COPY docker/docker-19.03.0.tgz /tmp/docker/
 RUN set -eux; \
     cd /tmp/docker/ \
     && tar -xzf docker-19.03.0.tgz --strip-components 1 -C /usr/local/bin \
-    && chmod +x /wine/opt/startup.sh \
     && rm -rf /tmp/docker
+COPY docker/daemon.json /etc/docker/
+COPY docker/supervisor/docker.ini /etc/supervisord.d/
+COPY docker/startup.sh /wine/opt/
+# https://github.com/docker/compose/releases/download/v2.22.0/docker-compose-linux-x86_64
+COPY docker/docker-compose-Linux-x86_64 /usr/local/bin/docker-compose
+RUN chmod +x /wine/opt/startup.sh \
+    && chmod +x /usr/local/bin/docker-compose 
 
 # install openvswitch
 
