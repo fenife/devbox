@@ -23,4 +23,12 @@ stop:
 enter:
 	docker exec -it $(ALPINE_NAME) bash
 
+# 保存镜像
+ALPINE_IMAGE_TAR=dind-alpine-3.19.tar
+save:
+	if [ -f ./${ALPINE_IMAGE_TAR} ]; then rm ./${ALPINE_IMAGE_TAR}; fi
+	docker save -o ${ALPINE_IMAGE_TAR} ${ALPINE_IMAGE}
+
+load:
+	docker load -i ${ALPINE_IMAGE_TAR}
 
