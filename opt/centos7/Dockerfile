@@ -167,6 +167,18 @@ RUN chmod +x /wine/opt/startup.sh \
     && chmod +x /usr/local/bin/docker-compose 
 
 # install openvswitch
+RUN yum install -y autoconf rpm-build redhat-rpm-config kernel-devel kernel-debug-devel libtool \
+    && yum clean all
+ENV rpmbuild_dir=
+COPY /openvswitch/openvswitch-2.5.2.tar.gz ${HOME_DIR}/rpmbuild/SOURCES/
+RUN set -eux; \
+    cd ${HOME_DIR}/rpmbuild/SOURCES \
+    && tar -xzf openvswitch-2.5.2.tar.gz \
+    && sed 's/openvswitch-kmod, //g' openvswitch-2.5.2/rhel/openvswitch.spec > openvswitch-2.5.2/rhel/openvswitch_no_kmod.spec \
+    && rpmbuild -bb --nocheck openvswitch-2.5.2/rhel/openvswitch_no_kmod.spec \
+    && yum localinstall ${HOME_DIR}/rpmbuild/RPMS/x86_64/openvswitch-2.5.2-1.x86_64.rpm \
+    && rm -rf /tmp/openvswitch-* \
+    && rm -rf ${HOME_DIR}/rpmbuild
 
 WORKDIR /wine
 
