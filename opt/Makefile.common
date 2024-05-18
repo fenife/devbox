@@ -12,10 +12,15 @@ help:
 
 # alias 
 
+run: start
+
 at: enter
 
 attach: enter
 
 exec: enter
 
+
+prune:
+	docker image prune
 

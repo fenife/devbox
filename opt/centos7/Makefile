@@ -17,6 +17,7 @@ build:
 start: 
 	docker run --rm -it --privileged \
 	--name $(CENTOS_NAME) --hostname $(CENTOS_NAME) \
+	-v $(shell pwd)/dind:/wine/dind \
 	$(CENTOS_IMAGE)
 
 stop:
@@ -24,8 +25,6 @@ stop:
 	docker rm $(CENTOS_NAME)
 
 enter:
-	docker exec -it $(CENTOS_NAME) bash
-
-run: start
+	docker exec -it $(CENTOS_NAME) zsh
 
 

@@ -163,6 +163,8 @@ RUN set -eux; \
     && chmod +x /wine/opt/startup.sh \
     && rm -rf /tmp/docker
 
+# install openvswitch
+
 WORKDIR /wine
 
 ENTRYPOINT ["/wine/opt/startup.sh"]
