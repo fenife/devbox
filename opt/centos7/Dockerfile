@@ -152,6 +152,13 @@ COPY pip.conf ${HOME_DIR}/.pip/pip.conf
 # Docker服务器开放的端口，供容器外部连接使用(在启动容器时做端口映射)
 # EXPOSE 22   
 
+# install openvswitch
+# see: https://blog.csdn.net/weixin_42072280/article/details/119764004
+RUN yum install -y epel-release \
+    && yum install -y centos-release-openstack-train \
+    && yum install -y openvswitch libibverbs \
+    && yum clean all 
+
 # install docker for dind
 # https://download.docker.com/linux/static/stable/x86_64/docker-19.03.0.tgz
 COPY docker/docker-19.03.0.tgz /tmp/docker/
@@ -160,23 +167,20 @@ RUN set -eux; \
     && tar -xzf docker-19.03.0.tgz --strip-components 1 -C /usr/local/bin \
     && rm -rf /tmp/docker
 COPY docker/daemon.json /etc/docker/
-COPY docker/supervisor/docker.ini /etc/supervisord.d/
-COPY docker/startup.sh /wine/opt/
+
+# install docker compose
 # https://github.com/docker/compose/releases/download/v2.22.0/docker-compose-linux-x86_64
 COPY docker/docker-compose-Linux-x86_64 /usr/local/bin/docker-compose
-RUN chmod +x /wine/opt/startup.sh \
-    && chmod +x /usr/local/bin/docker-compose 
+RUN chmod +x /usr/local/bin/docker-compose 
 
-# install openvswitch
-# see: https://blog.csdn.net/weixin_42072280/article/details/119764004
-RUN yum install -y epel-release \
-    && yum install -y centos-release-openstack-train \
-    && yum install -y openvswitch libibverbs \
-    && yum clean all 
+# install supervisor
+COPY supervisor/* /etc/supervisord.d/
+
+# install cmd
+COPY cmd/* /wine/cmd/
+RUN chmod +x /wine/cmd/*.sh
 
 WORKDIR /wine
-
-ENTRYPOINT ["/wine/opt/startup.sh"]
 
 CMD ["/bin/zsh"]
 
