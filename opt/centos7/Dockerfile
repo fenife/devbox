@@ -177,8 +177,9 @@ RUN chmod +x /usr/local/bin/docker-compose
 COPY supervisor/* /etc/supervisord.d/
 
 # install cmd
-COPY cmd/* /wine/cmd/
-RUN chmod +x /wine/cmd/*.sh
+COPY cmd/* /wine/bin/
+RUN chmod +x /wine/bin/*.sh
+ENV PATH="$PATH:/wine/bin"
 
 WORKDIR /wine
 

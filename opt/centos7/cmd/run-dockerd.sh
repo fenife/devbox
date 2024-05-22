@@ -7,12 +7,6 @@
 # https://docs.docker.com/config/daemon/logs/
 PID=`pidof dockerd`
 
-function get_pid {
-    PID=`pidof dockerd`
-    return $PID
-}
-
-
 function start {
     if [[ "" ==  "$PID" ]]; then
         dockerd >> /dev/null 2>&1 &
