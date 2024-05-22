@@ -2,8 +2,10 @@
 .PHONY: build start stop run pull at attach enter exec
 
 # env
+DEVC_CENTOS_IMAGE=devc-centos-7.9:latest
 
 ROOT_DIR=/wine
+DIND_DIR=/wine/devbox/opt/dind
 
 # help
 

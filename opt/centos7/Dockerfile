@@ -181,6 +181,8 @@ COPY cmd/* /wine/bin/
 RUN chmod +x /wine/bin/*.sh
 ENV PATH="$PATH:/wine/bin"
 
+ENV PATH="$PATH:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin"
+
 WORKDIR /wine
 
 CMD ["/bin/zsh"]
