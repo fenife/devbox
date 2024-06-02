@@ -15,7 +15,7 @@ build:
 	docker build -t $(CENTOS_IMAGE) .
 
 start: 
-	docker run --rm -it --privileged \
+	docker run $(DEVC_WITH_OPTIONS) \
 	--name $(CENTOS_NAME) --hostname $(CENTOS_NAME) \
 	-v $(shell pwd)/../dind:/wine/dind \
 	$(CENTOS_IMAGE)

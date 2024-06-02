@@ -7,6 +7,8 @@ DEVC_CENTOS_IMAGE=devc-centos-7.9:latest
 ROOT_DIR=/wine
 DIND_DIR=/wine/devbox/opt/dind
 
+DEVC_WITH_OPTIONS = --rm -it --privileged --add-host="feng-dev:192.168.0.121" 
+
 # help
 
 help:
