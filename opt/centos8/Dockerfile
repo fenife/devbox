@@ -33,8 +33,8 @@ RUN yum install -y curl wget tar bzip2 unzip vim passwd sudo tree rsync man git 
     iptables ipset iproute hostname net-tools telnet nc tcpdump bridge-utils traceroute \
     # 性能
     htop psmisc sysstat strace lsof \
-    # 语言、组件
-    mysql redis openssh-server \
+    # 其他组件
+    mysql redis openssh-server util-linux-user \
     # 依赖
     zlib libffi libtool python3-devel libpng-devel libjpeg-devel openssl-devel mysql-devel \
     zlib-devel libffi-devel bzip2-devel sqlite-devel readline-devel tk-devel \
@@ -43,18 +43,17 @@ RUN yum install -y curl wget tar bzip2 unzip vim passwd sudo tree rsync man git 
     # dind
     supervisor NetworkManager python3-setuptools iptables-services \
     # --nogpgcheck
-    # && groupinstall "Development Tools" \
     && yum clean all
 
-# install openssl
-COPY pkg/openssl-1.1.1w.tar.gz /tmp/
-RUN cd /tmp/ \
-    && tar -xzf openssl-1.1.1w.tar.gz \
-    && cd openssl-1.1.1w  \
-    && ./config --prefix=/usr \
-    && make \
-    && make install_sw install_ssldirs \
-    && rm -rf /tmp/openssl-*
+# # install openssl
+# COPY pkg/openssl-1.1.1w.tar.gz /tmp/
+# RUN cd /tmp/ \
+#     && tar -xzf openssl-1.1.1w.tar.gz \
+#     && cd openssl-1.1.1w  \
+#     && ./config --prefix=/usr \
+#     && make \
+#     && make install_sw install_ssldirs \
+#     && rm -rf /tmp/openssl-*
 
 # zsh
 # 安装zsh，默认安装在：/usr/local/bin/zsh
@@ -125,65 +124,61 @@ RUN cd /tmp/vscode/ext/ \
 ############################################################
 # install modules and plugins
 ############################################################
-ENV PATH="$PATH:/usr/local/python3.12/bin"
+# ENV PATH="$PATH:/usr/local/python3.12/bin"
 
-# # RUN yum install -y util-linux-user
+############################################################
+# configs
+############################################################
 
-# ############################################################
-# # configs
-# ############################################################
+# zsh config
+# 自动补全
+ENV ZSH_CUSTOM=${HOME_DIR}/.oh-my-zsh/custom
+# RUN mkdir -p ${ZSH_CUSTOM}/plugins/incr
+COPY zsh/incr-0.2.zsh ${ZSH_CUSTOM}/plugins/incr/incr.zsh
+# zshr配置
+COPY zsh/ext.zsh /tmp/ 
+RUN cat /tmp/ext.zsh >> ${HOME_DIR}/.zshrc \
+    && rm -rf /tmp/*.zsh \
+    # 设置主题
+    && sed -i "s/robbyrussell/ys/" ${HOME_DIR}/.zshrc 
+# 切换shell
+RUN chsh -s /bin/zsh 
 
-# # zsh config
-# # 自动补全
-# ENV ZSH_CUSTOM=${HOME_DIR}/.oh-my-zsh/custom
-# # RUN mkdir -p ${ZSH_CUSTOM}/plugins/incr
-# COPY zsh/incr-0.2.zsh ${ZSH_CUSTOM}/plugins/incr/incr.zsh
-# # zshr配置
-# COPY zsh/ext.zsh /tmp/ 
-# RUN cat /tmp/ext.zsh >> ${HOME_DIR}/.zshrc \
-#     && rm -rf /tmp/*.zsh \
-#     # 设置主题
-#     && sed -i "s/robbyrussell/ys/" ${HOME_DIR}/.zshrc 
-# # 切换shell
-# # RUN chsh -s /bin/zsh 
+# git config
+COPY conf/.gitconfig /${HOME_DIR}/.gitconfig
 
-# # git config
-# COPY conf/.gitconfig /${HOME_DIR}/.gitconfig
+# python config
+COPY conf/pip.conf ${HOME_DIR}/.pip/pip.conf
 
-# # python config
-# COPY conf/pip.conf ${HOME_DIR}/.pip/pip.conf
+# 配置ssh 
+# RUN sed -i 's/#PermitRootLogin yes/PermitRootLogin yes/g' /etc/ssh/sshd_config
+# RUN sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/g' /etc/ssh/sshd_config
+# Docker服务器开放的端口，供容器外部连接使用(在启动容器时做端口映射)
+# EXPOSE 22   
 
-# # 配置ssh 
-# # RUN sed -i 's/#PermitRootLogin yes/PermitRootLogin yes/g' /etc/ssh/sshd_config
-# # RUN sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/g' /etc/ssh/sshd_config
-# # Docker服务器开放的端口，供容器外部连接使用(在启动容器时做端口映射)
-# # EXPOSE 22   
-
-# # install openvswitch
-# # see: https://blog.csdn.net/weixin_42072280/article/details/119764004
+# install openvswitch
+# see: https://blog.csdn.net/weixin_42072280/article/details/119764004
 # RUN yum install -y epel-release \
-#     && yum install -y centos-release-openstack-train \
-#     && yum install -y openvswitch libibverbs \
-#     && yum clean all 
+RUN yum install -y centos-release-openstack-train openvswitch libibverbs \
+    && yum clean all 
 
-# # install docker for dind
-# # https://download.docker.com/linux/static/stable/x86_64/docker-19.03.0.tgz
-# COPY docker/docker-19.03.0.tgz /tmp/docker/
-# RUN set -eux; \
-#     cd /tmp/docker/ \
-#     && tar -xzf docker-19.03.0.tgz --strip-components 1 -C /usr/local/bin \
-#     && rm -rf /tmp/docker
-# COPY docker/daemon.json /etc/docker/
+# install docker for dind
+# https://download.docker.com/linux/static/stable/x86_64/docker-19.03.0.tgz
+COPY docker/docker-19.03.0.tgz /tmp/docker/
+RUN set -eux; \
+    cd /tmp/docker/ \
+    && tar -xzf docker-19.03.0.tgz --strip-components 1 -C /usr/local/bin \
+    && rm -rf /tmp/docker
+# install docker compose
+# https://github.com/docker/compose/releases/download/v2.22.0/docker-compose-linux-x86_64
+COPY docker/docker-compose-Linux-x86_64 /usr/local/bin/docker-compose
+RUN chmod +x /usr/local/bin/docker-compose 
+COPY docker/daemon.json /etc/docker/
 
-# # install docker compose
-# # https://github.com/docker/compose/releases/download/v2.22.0/docker-compose-linux-x86_64
-# COPY docker/docker-compose-Linux-x86_64 /usr/local/bin/docker-compose
-# RUN chmod +x /usr/local/bin/docker-compose 
+# install supervisor
+COPY supervisor/* /etc/supervisord.d/
 
-# # install supervisor
-# COPY supervisor/* /etc/supervisord.d/
-
-# # install cmd
+# install cmd
 COPY cmd/* /wine/bin/
 RUN chmod +x /wine/bin/*.sh
 ENV PATH="$PATH:/wine/bin"
@@ -192,6 +187,6 @@ ENV PATH="$PATH:/wine/bin"
 
 WORKDIR /wine
 
-CMD [ "start.sh" ]
-# CMD ["/bin/zsh"]
+# CMD [ "start.sh" ]
+CMD ["/bin/zsh"]
 
