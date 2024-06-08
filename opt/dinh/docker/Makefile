@@ -13,8 +13,8 @@ stop:
 restart:
 	systemctl restart docker
 
-log:
-
+enable:
+	sudo systemctl enable --now docker.socket
 
 
 

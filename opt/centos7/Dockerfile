@@ -204,7 +204,7 @@ COPY conf/pip.conf ${HOME_DIR}/.pip/pip.conf
 COPY conf/tmux.conf ${HOME_DIR}/.tmux.conf
 # docker proxy
 COPY docker/daemon.json /etc/docker/
-COPY /docker/docker.service /usr/lib/systemd/system/docker.service
+COPY /docker/docker.service.lib /usr/lib/systemd/system/docker.service
 # /usr/lib/systemd/system/docker.service
 
 # 配置ssh 
