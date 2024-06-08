@@ -5,20 +5,20 @@ include ../Makefile
 # network 
 ############################################################
 
-NET=dind-net
-NET0=dind-net0
-NET1=dind-net1
-NET2=dind-net2
+NET=vm-net
+NET0=$(NET)0
+NET1=$(NET)1
+NET2=$(NET)2
 
-net-create:
-	docker network create --driver=bridge --subnet=192.168.0.0/24 --gateway=192.168.0.1 \
+net-add:
+	docker network create --driver=bridge --subnet=10.10.0.0/24 --gateway=10.10.0.1 \
 	-o com.docker.network.bridge.name=br-$(NET0) $(NET0)
-	docker network create --driver=bridge --subnet=192.168.1.0/24 --gateway=192.168.1.1 \
-	-o com.docker.network.bridge.name=br-$(NET2) $(NET1)
-	docker network create --driver=bridge --subnet=192.168.2.0/24 --gateway=192.168.2.1 \
+	docker network create --driver=bridge --subnet=10.10.1.0/24 --gateway=10.10.1.1 \
+	-o com.docker.network.bridge.name=br-$(NET1) $(NET1)
+	docker network create --driver=bridge --subnet=10.10.2.0/24 --gateway=10.10.2.1 \
 	-o com.docker.network.bridge.name=br-$(NET2) $(NET2)
 
-net-delete:
+net-del:
 	docker network rm $(NET0)
 	docker network rm $(NET1)
 	docker network rm $(NET2)
@@ -31,9 +31,9 @@ VM_IMAGE=dind-alpine-3.19:latest
 
 ZONE=0
 VM=1
-VM_NAME=dind$(ZONE)$(VM)
+VM_NAME=vm$(ZONE)$(VM)
 VM_NET=$(NET)$(ZONE)
-VM_IP=192.168.$(ZONE).1$(VM)
+VM_IP=10.10.$(ZONE).1$(VM)
 
 start: 
 	docker run --rm -it --privileged --name $(VM_NAME) --hostname $(VM_NAME) \

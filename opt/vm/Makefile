@@ -1,14 +1,14 @@
 
-include ../Makefile.common
+include ../include/Makefile.common
 
 ############################################################
 # network 
 ############################################################
 
-NET=vm-net
-NET0=vm-net0
-NET1=vm-net1
-NET2=vm-net2
+NET=net
+NET0=net0
+NET1=net1
+NET2=net2
 
 net-create:
 	docker network create --driver=bridge --subnet=172.20.0.0/24 --gateway=172.20.0.1 \

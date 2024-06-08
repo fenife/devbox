@@ -29,6 +29,7 @@ rund: startd
 at: enter
 attach: enter
 exec: enter
+st: status
 
 # docker prune
 prune:
