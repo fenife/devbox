@@ -1,0 +1,46 @@
+
+.PHONY: build start stop run pull at attach enter exec sys rund startd
+
+# env
+DEVC_CENTOS_IMAGE=devc-centos-7.9:latest
+
+ROOT_DIR=/wine
+WINE_OPT_DIR=/wine/devbox/opt
+DINH_DIR=/wine/devbox/opt/dinh
+
+ETH_NAME=ens33
+HOST_IP=$(shell ifconfig  | grep $(ETH_NAME) -A 2 | grep inet | head -1 | awk '{print $$2}')
+HOST_NAME=$(shell hostname)
+
+DEVC_WITH_OPTIONS = --rm -it --privileged \
+	--add-host="$(HOST_NAME):$(HOST_IP)"  \
+	-v $(DINH_DIR):/wine/dinh:ro \
+	-v $(WINE_OPT_DIR)/include:/wine/include:ro 
+
+# help
+
+help:
+	@LC_ALL=C $(MAKE) -pRrq -f $(firstword $(MAKEFILE_LIST)) : 2>/dev/null | awk -v RS= -F: '/(^|\n)# Files(\n|$$)/,/(^|\n)# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | grep -E -v -e '^[^[:alnum:]]' -e '^$@$$'
+
+# alias 
+
+run: start
+rund: startd
+at: enter
+attach: enter
+exec: enter
+
+# docker prune
+prune:
+	docker image prune
+
+sys:
+	cat /etc/centos-release
+	@echo
+	cat /proc/version
+	@echo
+	uname -r
+	@echo
+	@echo "host ip:   $(HOST_IP)"
+	@echo "host name: $(HOST_NAME)"
+

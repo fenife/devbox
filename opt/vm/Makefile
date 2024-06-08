@@ -39,7 +39,7 @@ start:
 	docker run $(DEVC_WITH_OPTIONS) \
 	--name $(VM_NAME) --hostname $(VM_NAME) \
 	--network $(VM_NET) --ip $(VM_IP) \
-	-v $(DIND_DIR):/wine/dind \
+	-v $(DINH_DIR):/wine/dind \
 	$(VM_IMAGE)
 
 stop:

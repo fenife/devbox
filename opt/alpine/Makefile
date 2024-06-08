@@ -1,5 +1,5 @@
 
-include ../Makefile.common
+include ../include/Makefile.common
 
 ALPINE_IMAGE_FROM=alpine:3.19
 ALPINE_IMAGE=dind-alpine-3.19:latest
@@ -24,7 +24,7 @@ enter:
 	docker exec -it $(ALPINE_NAME) bash
 
 # 保存镜像
-ALPINE_IMAGE_TAR=dind-alpine-3.19.tar
+ALPINE_IMAGE_TAR=../dinh/vm/dind-alpine-3.19.tar
 save:
 	if [ -f ./${ALPINE_IMAGE_TAR} ]; then rm ./${ALPINE_IMAGE_TAR}; fi
 	docker save -o ${ALPINE_IMAGE_TAR} ${ALPINE_IMAGE}

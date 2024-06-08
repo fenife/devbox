@@ -1,5 +1,5 @@
 
-include ./Makefile.common
+include ../Makefile
 
 ############################################################
 # network 
@@ -48,3 +48,10 @@ enter:
 	docker exec -it $(VM_NAME) bash
 
 
+############################################################
+# load image
+############################################################
+ALPINE_IMAGE_TAR=dind-alpine-3.19.tar
+
+load:
+	docker load -i ${ALPINE_IMAGE_TAR}

@@ -159,13 +159,24 @@ RUN cd /tmp/vscode/ext/ \
     && ./install.sh ${VSCODE_BIN}
 
 ############################################################
-# install modules and plugins
+# install others
 ############################################################
 
 # RUN yum install -y --disablerepo="*" --enablerepo="base" tmux \
 #     && yum clean all
 
 ENV PATH="$PATH:/usr/local/python3.12/bin"
+
+# install supervisor
+COPY supervisor/* /etc/supervisord.d/
+
+# install systemctl 
+# https://github.com/gdraheim/docker-systemctl-replacement/
+# https://github.com/gdraheim/docker-systemctl-images/
+COPY sys/systemctl.py /tmp
+RUN mv /usr/bin/systemctl /usr/bin/systemctl.bak \
+    && cp /tmp/systemctl.py /usr/bin/systemctl \
+    && chmod a+x /usr/bin/systemctl 
 
 ############################################################
 # configs
@@ -200,25 +211,10 @@ COPY docker/daemon.json /etc/docker/
 # Docker服务器开放的端口，供容器外部连接使用(在启动容器时做端口映射)
 # EXPOSE 22   
 
-# install supervisor
-COPY supervisor/* /etc/supervisord.d/
-
-# systemctl 
-# https://github.com/gdraheim/docker-systemctl-replacement/
-# https://github.com/gdraheim/docker-systemctl-images/
-COPY sys/systemctl.py /tmp
-RUN mv /usr/bin/systemctl /usr/bin/systemctl.bak \
-    && cp /tmp/systemctl.py /usr/bin/systemctl \
-    && chmod a+x /usr/bin/systemctl 
-
-# install cmd
-COPY bin/* /wine/bin/
-RUN chmod +x /wine/bin/*.sh
-ENV PATH="$PATH:/wine/bin"
-
 ENV PATH="$PATH:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin"
+ENV PATH="$PATH:/wine/dinh/bin"
 
-WORKDIR /wine
+WORKDIR /wine/dinh
 
 CMD ["/bin/zsh"]
 

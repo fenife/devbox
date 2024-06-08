@@ -1,5 +1,5 @@
 
-include ../Makefile.common
+include ../include/Makefile.common
 
 CENTOS_IMAGE_FROM=centos:7.9.2009
 DEVC_CENTOS_IMAGE=devc-centos-7.9:latest
@@ -17,7 +17,6 @@ build:
 start: 
 	docker run $(DEVC_WITH_OPTIONS) \
 	--name $(CENTOS_NAME) --hostname $(CENTOS_NAME) \
-	-v $(shell pwd)/../dind:/wine/dind \
 	$(CENTOS_IMAGE)
 
 stop:
