@@ -21,13 +21,13 @@ ADD repo/centos-base-ali.repo /etc/yum.repos.d/CentOS-Base.repo
 ADD repo/centos-epel-ali.repo /etc/yum.repos.d/epel.repo
 
 # 基础工具下载
-RUN yum install -y curl wget tar bzip2 unzip vim passwd sudo tree rsync man git tig \
+RUN yum install -y curl wget tar bzip2 unzip vim passwd sudo tree rsync man git tig tmux \
     # 编译
     gcc gcc-c++ make yum-utils automake cmake autoconf rpm-build redhat-rpm-config \
     # 网络
     iptables ipset iproute hostname net-tools telnet nc tcpdump route bridge-utils traceroute \
     # 性能
-    htop vmstat iostat pidstat sysstat strace lsof \
+    htop psmisc vmstat iostat pidstat sysstat strace lsof \
     # 语言、组件
     python-pip mysql-client redis openssh-server openssh-client \
     # 依赖
@@ -41,7 +41,10 @@ RUN yum install -y curl wget tar bzip2 unzip vim passwd sudo tree rsync man git 
     # && groupinstall "Development Tools" \
     && yum clean all
 
-# install openssl
+############################################################
+# openssl
+############################################################
+
 COPY pkg/openssl-1.1.1w.tar.gz /tmp/
 RUN cd /tmp/ \
     && tar -xzf openssl-1.1.1w.tar.gz \
@@ -51,7 +54,10 @@ RUN cd /tmp/ \
     && make install_sw install_ssldirs \
     && rm -rf /tmp/openssl-*
 
+############################################################
 # zsh
+############################################################
+
 # 安装zsh，默认安装在：/usr/local/bin/zsh
 # 参考：https://blog.csdn.net/u012605514/article/details/121797773
 COPY zsh/zsh-5.8.tar.xz /tmp/
@@ -73,14 +79,9 @@ RUN cd /tmp \
     && cp ${HOME_DIR}/.oh-my-zsh/templates/zshrc.zsh-template ${HOME_DIR}/.zshrc \
     && rm -rf /tmp/ohmyzsh-*
 
-# 安装 golang 
-RUN cd /tmp \
-    && wget https://golang.google.cn/dl/go1.22.3.linux-amd64.tar.gz \
-    && tar -zxf go1.22.3.linux-amd64.tar.gz -C /usr/local \
-    && rm -rf /tmp/go*
-ENV PATH="$PATH:/usr/local/go/bin"
-
-# install python3.12 with ssl
+############################################################
+# python3
+############################################################
 COPY pkg/Python-3.12.0.tgz /tmp/
 RUN cd /tmp/ \
     && tar -xzf Python-3.12.0.tgz \
@@ -89,7 +90,55 @@ RUN cd /tmp/ \
     && make \
     && make install \
     && rm -rf /tmp/Python-*
-ENV PATH="$PATH:/usr/local/python3.12/bin"
+RUN ln -s /usr/local/python3.12/bin/python3.12 /usr/bin/python3.12 \
+    && ln -s /usr/local/python3.12/bin/pip3.12 /usr/bin/pip3.12
+
+############################################################
+# golang
+############################################################
+RUN cd /tmp \
+    && wget https://golang.google.cn/dl/go1.22.3.linux-amd64.tar.gz \
+    && tar -zxf go1.22.3.linux-amd64.tar.gz -C /usr/local \
+    && rm -rf /tmp/go*
+ENV PATH="$PATH:/usr/local/go/bin"
+# install golang dlv gopls staticcheck
+# RUN go env -w GOPROXY=https://mirrors.aliyun.com/goproxy/ \
+RUN go env -w GOPROXY=https://goproxy.cn,direct \
+    && go env -w GO111MODULE=on \
+    && go env -w GOSUMDB='off'
+RUN go install golang.org/x/tools/gopls@v0.15.3 \
+    && go install github.com/go-delve/delve/cmd/dlv@v1.22.1 \
+    && go install honnef.co/go/tools/cmd/staticcheck@v0.4.7 
+
+############################################################
+# docker
+############################################################
+
+# install docker for dind
+# https://download.docker.com/linux/static/stable/x86_64/docker-19.03.0.tgz
+COPY docker/docker-19.03.0.tgz /tmp/docker/
+RUN set -eux; \
+    cd /tmp/docker/ \
+    && tar -xzf docker-19.03.0.tgz --strip-components 1 -C /usr/local/bin \
+    && rm -rf /tmp/docker
+
+# install docker compose
+# https://github.com/docker/compose/releases/download/v2.22.0/docker-compose-linux-x86_64
+COPY docker/docker-compose-Linux-x86_64 /usr/local/bin/docker-compose
+RUN chmod +x /usr/local/bin/docker-compose 
+
+############################################################
+# openvswitch
+############################################################
+# see: https://blog.csdn.net/weixin_42072280/article/details/119764004
+RUN yum install -y epel-release \
+    && yum install -y centos-release-openstack-train \
+    && yum install -y openvswitch libibverbs \
+    && yum clean all 
+
+############################################################
+# vscode
+############################################################
 
 # 安装vscode
 # 对应以下版本：
@@ -102,25 +151,21 @@ COPY vscode/vscode-server-linux-x64-1.85.2.tar.gz /tmp/
 RUN mkdir -p ${VSCODE_BIN_DIR} \
     && tar -xzf /tmp/vscode-server-linux-x64-1.85.2.tar.gz -C ${VSCODE_BIN_DIR} --strip 1 \
     && rm /tmp/vscode-*
-
-############################################################
-# install modules and plugins
-############################################################
-
-# install golang dlv gopls staticcheck
-RUN go env -w GOPROXY=https://goproxy.cn,direct \
-    && go env -w GO111MODULE=on \
-    && go env -w GOSUMDB='off'
-RUN go install golang.org/x/tools/gopls@v0.15.3 \
-    && go install github.com/go-delve/delve/cmd/dlv@v1.22.1 \
-    && go install honnef.co/go/tools/cmd/staticcheck@v0.4.7 
-
 # 安装 vscode extensions
 COPY vscode/ext/* /tmp/vscode/ext/
 ENV VSCODE_BIN=${VSCODE_BIN_DIR}/bin/code-server
 RUN cd /tmp/vscode/ext/ \
     # 传入 code-server 执行文件的路径，在脚本里遍历安装扩展文件
     && ./install.sh ${VSCODE_BIN}
+
+############################################################
+# install modules and plugins
+############################################################
+
+# RUN yum install -y --disablerepo="*" --enablerepo="base" tmux \
+#     && yum clean all
+
+ENV PATH="$PATH:/usr/local/python3.12/bin"
 
 ############################################################
 # configs
@@ -141,10 +186,13 @@ RUN cat /tmp/ext.zsh >> ${HOME_DIR}/.zshrc \
 RUN chsh -s $(which zsh) 
 
 # git config
-COPY .gitconfig /${HOME_DIR}/.gitconfig
-
+COPY conf/.gitconfig /${HOME_DIR}/.gitconfig
 # pip config
-COPY pip.conf ${HOME_DIR}/.pip/pip.conf
+COPY conf/pip.conf ${HOME_DIR}/.pip/pip.conf
+# tmux
+COPY conf/tmux.conf ${HOME_DIR}/.tmux.conf
+# docker proxy
+COPY docker/daemon.json /etc/docker/
 
 # 配置ssh 
 # RUN sed -i 's/#PermitRootLogin yes/PermitRootLogin yes/g' /etc/ssh/sshd_config
@@ -152,32 +200,19 @@ COPY pip.conf ${HOME_DIR}/.pip/pip.conf
 # Docker服务器开放的端口，供容器外部连接使用(在启动容器时做端口映射)
 # EXPOSE 22   
 
-# install openvswitch
-# see: https://blog.csdn.net/weixin_42072280/article/details/119764004
-RUN yum install -y epel-release \
-    && yum install -y centos-release-openstack-train \
-    && yum install -y openvswitch libibverbs \
-    && yum clean all 
-
-# install docker for dind
-# https://download.docker.com/linux/static/stable/x86_64/docker-19.03.0.tgz
-COPY docker/docker-19.03.0.tgz /tmp/docker/
-RUN set -eux; \
-    cd /tmp/docker/ \
-    && tar -xzf docker-19.03.0.tgz --strip-components 1 -C /usr/local/bin \
-    && rm -rf /tmp/docker
-COPY docker/daemon.json /etc/docker/
-
-# install docker compose
-# https://github.com/docker/compose/releases/download/v2.22.0/docker-compose-linux-x86_64
-COPY docker/docker-compose-Linux-x86_64 /usr/local/bin/docker-compose
-RUN chmod +x /usr/local/bin/docker-compose 
-
 # install supervisor
 COPY supervisor/* /etc/supervisord.d/
 
+# systemctl 
+# https://github.com/gdraheim/docker-systemctl-replacement/
+# https://github.com/gdraheim/docker-systemctl-images/
+COPY sys/systemctl.py /tmp
+RUN mv /usr/bin/systemctl /usr/bin/systemctl.bak \
+    && cp /tmp/systemctl.py /usr/bin/systemctl \
+    && chmod a+x /usr/bin/systemctl 
+
 # install cmd
-COPY cmd/* /wine/bin/
+COPY bin/* /wine/bin/
 RUN chmod +x /wine/bin/*.sh
 ENV PATH="$PATH:/wine/bin"
 
