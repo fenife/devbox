@@ -1,69 +1,98 @@
 
+include /wine/devbox/opt/include/Makefile.common
+
 .PHONY: mysql cfn push pull
 .PHONY: up stop exec clean
 
-mysql:
+INSTALL_DIR=/opt/atlassian/confluence/
+DATA_DIR=/wine/var/lib/cfn/
+CONTAINER_NAME=confluence
+
+pre:
+	mkdir -p $(DATA_DIR)/confluence
+	mkdir -p $(DATA_DIR)/mysql
+
+ls:
+	ls -alh $(DATA_DIR)/confluence
+	ls -alh $(DATA_DIR)/mysql
+
+build-mysql:
 	docker build -f mysql.Dockerfile -t mysql:5.7.30-confluence .	
 
-
-cfn:
+build-cfn:
 	docker build -f confluence.Dockerfile -t confluence:7.9.3-agented .
 
 tag:
 	#docker tag cptactionhank/atlassian-confluence:7.9.3 fenife/atlassian-confluence:7.9.3
 	docker tag mysql:5.7.30-confluence fenife/mysql:5.7.30-confluence
 	docker tag confluence:7.9.3-agented fenife/confluence:7.9.3-agented
-	docker tag confluence:7.9.3-agented fenife/cfn:7.9.3
 
 push:
 	docker push fenife/mysql:5.7.30-confluence
 	docker push fenife/confluence:7.9.3-agented
 
-push2:
-	docker push fenife/cfn:7.9.3
-
 pull:
 	docker pull fenife/mysql:5.7.30-confluence
 	docker pull fenife/confluence:7.9.3-agented
 
-up:
+start:
 	docker compose up 
+
+startd:
+	docker compose up -d
 
 stop:
 	docker compose stop
+	docker rm $(CONTAINER_NAME)
+	docker rm mysql-confluence
 
 exec:
 	docker exec -it confluence /bin/bash 
 
 clean:
-	sudo rm -rf /var/lib/cfn/*
-
-conn:
-	mysql -h127.0.0.1 -P3308 -uroot -proot
+	sudo rm -rf $(DATA_DIR)/*
 
 at: exec
 
-# create database confluence;
 
-# agented
-# docker exec -it confluence /bin/bash
-# cd /opt/atlassian/confluence/agented/
-# vi agented.sh
-# sh ./agented.sh
+
+DB_CONN=mysql -h127.0.0.1 -P3308 -uroot -proot
+
+conn:
+	$(DB_CONN)
+
+db-create:
+	$(DB_CONN) -e "create database confluence;"
+	$(DB_CONN) -e "show databases;"
+
+jdbc:
+	@echo "jdbc:mysql://mysql-confluence:3306/confluence?characterEncoding=utf8&useUnicode=true&useSSL=false"	
+
+
+EMAIL=xxx@xxx.com
+NOTE_NAME=note
+ADDR=http://$(HOST_IP)
+SERVER_ID=xxx
+ 
+auth-server:
+	docker exec $(CONTAINER_NAME) \
+	java -jar $(INSTALL_DIR)/atlassian-agent.jar \
+	-d -m ${EMAIL} -n ${NOTE_NAME} \
+	-p conf -o ${ADDR} \
+	-s ${SERVER_ID}
+
+APPKEY=conf
+# APPKEY=cz.morosystems.atlassian.plugin.easymind
+# APPKEY = com.mxgraph.confluence.plugins.diagramly
+# APPKEY=com.stiltsoft.confluence.plugin.tablefilter.tablefilter
+
+auth-app:
+	docker exec $(CONTAINER_NAME) \
+	java -jar $(INSTALL_DIR)/atlassian-agent.jar \
+	-d -m ${EMAIL} -n ${NOTE_NAME} \
+	-p $(APPKEY) -o ${ADDR} \
+	-s ${SERVER_ID} 
+
 
 # jdbc:mysql://192.168.0.121:3308/confluence?characterEncoding=utf8&useUnicode=true&useSSL=false
 # jdbc:mysql://192.168.0.121:3308/confluence?characterEncoding=utf8&useUnicode=true&useSSL=false&serverTimezone=UTC
-# jdbc:mysql://172.17.64.10/confdb?useUnicode=true&characterEncoding=utf8
-
-appkey = com.mxgraph.confluence.plugins.diagramly
-
-
-java -jar /opt/atlassian/confluence/agented/atlassian-agent.jar -m fenife@163.com -n note -p com.stiltsoft.confluence.plugin.tablefilter.tablefilter -o Stiltsoft Europe -s B3XB-9GL2-08E5-N4VG -d
-
-
-java -jar /opt/atlassian/confluence/agented/atlassian-agent.jar -m fenife@163.com -n note -p com.mxgraph.confluence.plugins.diagramly -o http://192.168.0.121 -s B3XB-9GL2-08E5-N4VG -d
-
-java -jar /opt/atlassian/confluence/agented/atlassian-agent.jar -m fenife@163.com -n note -p com.stiltsoft.confluence.plugin.tablefilter.tablefilter -o http://192.168.0.121 -s B3XB-9GL2-08E5-N4VG -d
-
-java -jar /opt/atlassian/confluence/agented/atlassian-agent.jar -m fenife@163.com -n note -p cz.morosystems.atlassian.plugin.easymind -o http://192.168.0.121 -s B3XB-9GL2-08E5-N4VG -d
-

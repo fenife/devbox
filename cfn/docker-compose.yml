@@ -6,7 +6,7 @@ services:
     ports:
       - 3308:3306
     volumes:
-      - /var/lib/cfn/mysql:/var/lib/mysql
+      - /wine/var/lib/cfn/mysql:/var/lib/mysql
     security_opt: 
       - seccomp:unconfined
     environment:
@@ -22,5 +22,10 @@ services:
     ports:
       - 8090:8090
     volumes:
-      - /var/lib/cfn/confluence:/var/atlassian/confluence
+      - /wine/var/lib/cfn/confluence:/var/atlassian/confluence
 
+networks:
+  mynet1:
+    ipam:
+      config:
+        - subnet: 172.28.0.0/24
