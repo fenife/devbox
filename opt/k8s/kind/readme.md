@@ -20,9 +20,16 @@ docker tag m.daocloud.io/docker.io/kindest/node:v1.25.3 kindest/node:v1.25.3
 docker pull m.daocloud.io/docker.io/kindest/node:v1.30.0
 docker tag m.daocloud.io/docker.io/kindest/node:v1.30.0 kindest/node:v1.30.0
 
-## start
+## simple start
 kind create cluster --name dev2 --image kindest/node:v1.30.0
 kubectl cluster-info --context kind-dev2
+
+## usage
+kind create cluster --config=cluster.yaml
+
+kubectl cluster-info --context kind-dev1
+
+kind delete cluster -n dev1
 
 
 ## 参考
