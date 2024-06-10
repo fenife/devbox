@@ -24,3 +24,8 @@ docker tag m.daocloud.io/docker.io/kindest/node:v1.30.0 kindest/node:v1.30.0
 kind create cluster --name dev2 --image kindest/node:v1.30.0
 kubectl cluster-info --context kind-dev2
 
+
+## 参考
+- Kubernetes教程(十五)---使用 kind 在本地快速部署一个 k8s集群
+    https://www.lixueduan.com/posts/kubernetes/15-kind-kubernetes-in-docker/
+
