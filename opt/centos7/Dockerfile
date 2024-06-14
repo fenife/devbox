@@ -137,6 +137,21 @@ RUN yum install -y epel-release \
     && yum clean all 
 
 ############################################################
+# git
+############################################################
+COPY /pkg/git-2.30.0.tar.gz /tmp/
+RUN set -eux; \
+    rm /usr/bin/git \
+    && cd /tmp \
+    && tar -zxf git-2.30.0.tar.gz \
+    && cd git-2.30.0 \
+    && make configure \
+    && ./configure --prefix=/usr \
+    && make all \
+    && make install \
+    && rm -rf /tmp/git-*
+
+############################################################
 # vscode
 ############################################################
 
