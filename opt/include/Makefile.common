@@ -5,17 +5,24 @@
 DEVC_CENTOS_IMAGE=devc-centos-7.9:latest
 
 ROOT_DIR=/wine
-WINE_OPT_DIR=/wine/devbox/opt
-DINH_DIR=/wine/devbox/opt/dinh
+OPT_DIR=/wine/devbox/opt
+CODE_DIR=/wine/devbox/code
+SHARE_DIR=/wine/devbox/share
+DEVC_DIR=/wine/devbox/opt/devc
+INCLUDE_DIR=/wine/devbox/opt/include
 
-ETH_NAME=ens33
+# ETH_NAME=ens33
+ETH_NAME=$(shell ip -br l | awk '$$1 !~ "lo|vir|wl|br|veth|docker0" {print $$1}')
 HOST_IP=$(shell ifconfig  | grep $(ETH_NAME) -A 2 | grep inet | head -1 | awk '{print $$2}')
 HOST_NAME=$(shell hostname)
 
 DEVC_WITH_OPTIONS = --rm -it --privileged \
 	--add-host="$(HOST_NAME):$(HOST_IP)"  \
-	-v $(DINH_DIR):/wine/dinh:ro \
-	-v $(WINE_OPT_DIR)/include:/wine/include:ro 
+	--add-host="mysql:$(HOST_IP)"  \
+	--add-host="redis:$(HOST_IP)"  \
+	-v $(DEVC_DIR):$(DEVC_DIR):ro \
+	-v $(INCLUDE_DIR):$(INCLUDE_DIR):ro \
+	-v $(SHARE_DIR):$(SHARE_DIR) 
 
 # help
 
@@ -42,6 +49,7 @@ sys:
 	@echo
 	uname -r
 	@echo
+	@echo "eth name:  $(ETH_NAME)"
 	@echo "host ip:   $(HOST_IP)"
 	@echo "host name: $(HOST_NAME)"
 

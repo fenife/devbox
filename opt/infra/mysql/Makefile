@@ -1,5 +1,5 @@
 
-include ../Makefile.common
+include ../include/Makefile.common
 
 MYSQL_IMAGE=mysql:5.7
 MYSQL_NAME=mysql
@@ -29,3 +29,10 @@ root:
 
 test:
 	mysql -h127.0.0.1 -P3306 -utest -ptest
+
+# 创建用户
+# CREATE USER 'test' IDENTIFIED BY 'test';
+# 用户授权
+# GRANT ALL PRIVILEGES ON *.* TO test@'%' IDENTIFIED BY 'test'; 
+# 刷新
+# flush privileges;

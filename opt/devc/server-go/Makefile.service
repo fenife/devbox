@@ -1,0 +1,12 @@
+include ../Makefile
+
+SERVER_GO_CODE_DIR=$(CODE_DIR)/server-go
+
+cd:
+	cd $(SERVER_GO_CODE_DIR)	
+
+start: 
+	cd $(SERVER_GO_CODE_DIR); \
+	go run .	
+
+

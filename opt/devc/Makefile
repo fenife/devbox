@@ -1,4 +1,4 @@
 
-include /wine/include/Makefile.common
+include $(WINE_OPT_DIR)/include/Makefile.common
 
-ETH_NAME := eth0
+# ETH_NAME := eth0
