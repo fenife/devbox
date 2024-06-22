@@ -177,8 +177,8 @@ RUN cd /tmp/vscode/ext/ \
 # install others
 ############################################################
 
-# RUN yum install -y --disablerepo="*" --enablerepo="base" tmux \
-#     && yum clean all
+RUN yum install -y --disablerepo="*" --enablerepo="base" mysql \
+    && yum clean all
 
 ENV PATH="$PATH:/usr/local/python3.12/bin"
 
@@ -228,10 +228,21 @@ COPY /docker/docker.service.lib /usr/lib/systemd/system/docker.service
 # Docker服务器开放的端口，供容器外部连接使用(在启动容器时做端口映射)
 # EXPOSE 22   
 
+ENV WINE_OPT_DIR=/wine/devbox/opt
+ENV DEVC_DIR=/wine/devbox/opt/devc
 ENV PATH="$PATH:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin"
-ENV PATH="$PATH:/wine/dinh/bin"
+ENV PATH="$PATH:${DEVC_DIR}/bin"
 
-WORKDIR /wine/dinh
+# add alias to zshrc
+RUN printf '\n\
+alias mc="make -f Makefile.container" \n\
+alias ms="make -f Makefile.service" \n\
+alias jopt="cd /wine/devbox/opt" \n\
+alias jdevc="cd /wine/devbox/opt/devc" \n\
+export WINE_OPT_DIR=/wine/devbox/opt \n\
+\n\
+' >> ${HOME_DIR}/.zshrc
+
+WORKDIR ${DEVC_DIR}
 
 CMD ["/bin/zsh"]
-
