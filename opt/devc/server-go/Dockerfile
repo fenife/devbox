@@ -8,4 +8,6 @@ RUN set -eux; \
 
 EXPOSE 8000
 
+WORKDIR /wine/devbox/opt/devc/server-go
+
 CMD [ "/bin/zsh" ]

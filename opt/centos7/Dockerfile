@@ -233,16 +233,6 @@ ENV DEVC_DIR=/wine/devbox/opt/devc
 ENV PATH="$PATH:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin"
 ENV PATH="$PATH:${DEVC_DIR}/bin"
 
-# add alias to zshrc
-RUN printf '\n\
-alias mc="make -f Makefile.container" \n\
-alias ms="make -f Makefile.service" \n\
-alias jopt="cd /wine/devbox/opt" \n\
-alias jdevc="cd /wine/devbox/opt/devc" \n\
-export WINE_OPT_DIR=/wine/devbox/opt \n\
-\n\
-' >> ${HOME_DIR}/.zshrc
-
 WORKDIR ${DEVC_DIR}
 
 CMD ["/bin/zsh"]

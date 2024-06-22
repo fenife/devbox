@@ -17,3 +17,18 @@ pastefinish() {
 zstyle :bracketed-paste-magic paste-init pasteinit
 zstyle :bracketed-paste-magic paste-finish pastefinish
 
+
+############################################################
+
+export WINE_OPT_DIR=/wine/devbox/opt
+
+alias runc="make -f Makefile.runc" 
+alias runs="make -f Makefile.runs"
+alias rinh="make -f Makefile.rinh"
+alias rinc="make -f Makefile.rinc"
+alias rind="make -f Makefile.rind"
+alias rinv="make -f Makefile.rinv"
+
+alias jopt="cd /wine/devbox/opt" 
+alias jdevc="cd /wine/devbox/opt/devc" 
+
