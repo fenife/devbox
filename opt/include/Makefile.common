@@ -20,6 +20,7 @@ DEVC_WITH_OPTIONS = --rm -it --privileged \
 	--add-host="$(HOST_NAME):$(HOST_IP)"  \
 	--add-host="mysql:$(HOST_IP)"  \
 	--add-host="redis:$(HOST_IP)"  \
+	--add-host="rabbitmq:$(HOST_IP)" \
 	-v $(DEVC_DIR):$(DEVC_DIR):ro \
 	-v $(INCLUDE_DIR):$(INCLUDE_DIR):ro \
 	-v $(SHARE_DIR):$(SHARE_DIR) 

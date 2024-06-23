@@ -174,6 +174,7 @@ RUN mkdir -p ${VSCODE_BIN_DIR} \
     && tar -xzf /tmp/vscode-server-linux-x64-1.85.2.tar.gz -C ${VSCODE_BIN_DIR} --strip 1 \
     && rm /tmp/vscode-*
 # 安装 vscode extensions
+# ~/.vscode-server/bin/8b3775030ed1a69b13e4f4c628c612102e30a681/bin/code-server 
 COPY vscode/ext/* /tmp/vscode/ext/
 ENV VSCODE_BIN=${VSCODE_BIN_DIR}/bin/code-server
 RUN cd /tmp/vscode/ext/ \

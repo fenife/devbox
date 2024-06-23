@@ -1,5 +1,5 @@
 
-include ../include/Makefile.common
+include ../../include/Makefile.common
 
 MYSQL_IMAGE=mysql:5.7
 MYSQL_NAME=mysql
@@ -20,6 +20,9 @@ start:
 stop:
 	docker stop $(MYSQL_NAME)
 	docker rm $(MYSQL_NAME)
+
+restart:
+	docker restart $(MYSQL_NAME)
 
 enter:
 	docker exec -it $(MYSQL_NAME) bash
