@@ -152,6 +152,13 @@ RUN set -eux; \
     && rm -rf /tmp/git-*
 
 ############################################################
+# install others
+############################################################
+
+RUN yum install -y --disablerepo="*" --enablerepo="base" mysql \
+    && yum clean all
+
+############################################################
 # vscode
 ############################################################
 
@@ -174,11 +181,11 @@ RUN cd /tmp/vscode/ext/ \
     && ./install.sh ${VSCODE_BIN}
 
 ############################################################
-# install others
+# others
 ############################################################
 
-RUN yum install -y --disablerepo="*" --enablerepo="base" mysql \
-    && yum clean all
+# RUN yum install -y --disablerepo="*" --enablerepo="base" mysql \
+#     && yum clean all
 
 ENV PATH="$PATH:/usr/local/python3.12/bin"
 
@@ -219,7 +226,7 @@ COPY conf/pip.conf ${HOME_DIR}/.pip/pip.conf
 COPY conf/tmux.conf ${HOME_DIR}/.tmux.conf
 # docker proxy
 COPY docker/daemon.json /etc/docker/
-COPY /docker/docker.service.lib /usr/lib/systemd/system/docker.service
+# COPY docker/docker.service.lib /usr/lib/systemd/system/docker.service
 # /usr/lib/systemd/system/docker.service
 
 # 配置ssh 

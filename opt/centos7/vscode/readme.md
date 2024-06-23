@@ -16,10 +16,10 @@ OS: Windows_NT x64 10.0.22631
 wget -O vscode-server-linux-x64-1.85.2.tar.gz https://update.code.visualstudio.com/commit:8b3775030ed1a69b13e4f4c628c612102e30a681/server-linux-x64/stable 
 
 # ms-python.python
-https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-python/vsextensions/python/2024.2.1/vspackage
+https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-python/vsextensions/python/2021.9.1246542782/vspackage
 
 # ms-python.debugpy
-https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-python/vsextensions/debugpy/2024.0.0/vspackage?targetPlatform=linux-x64
+https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-python/vsextensions/debugpy/2023.1.12492010/vspackage
 
 # ms-toolsai.jupyter
 https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-toolsai/vsextensions/jupyter/2023.11.1100101639/vspackage?targetPlatform=linux-x64
