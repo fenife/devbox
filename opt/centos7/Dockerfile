@@ -236,9 +236,7 @@ COPY docker/daemon.json /etc/docker/
 # Docker服务器开放的端口，供容器外部连接使用(在启动容器时做端口映射)
 # EXPOSE 22   
 
-ENV WINE_OPT_DIR=/wine/devbox/opt
 ENV DEVC_DIR=/wine/devbox/opt/devc
-ENV PATH="$PATH:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin"
 ENV PATH="$PATH:${DEVC_DIR}/bin"
 
 WORKDIR ${DEVC_DIR}

@@ -1,15 +1,66 @@
 
 .PHONY: build start stop run pull at attach enter exec sys rund startd
 
+
+############################################################
+# help
+############################################################
+
+common: 	## --------------------------------------------- 
+
+help: 	## print help for targets with comments
+	@cat $(MAKEFILE_LIST) | grep -E '^[a-zA-Z_-]+:.*?## .*$$' | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s \033[0m%s\n", $$1, $$2}'
+
+cmd:
+	@LC_ALL=C $(MAKE) -pRrq -f $(firstword $(MAKEFILE_LIST)) : 2>/dev/null | awk -v RS= -F: '/(^|\n)# Files(\n|$$)/,/(^|\n)# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | grep -E -v -e '^[^[:alnum:]]' -e '^$@$$'
+
+sys: ## print sys info
+	@echo "-------------------- time info --------------------"
+	@echo "now:     $(NOW)"
+	@echo "ts:      $(NOW_TS)"
+	@echo
+	@echo "-------------------- path info --------------------"
+	@echo "exec makefile:        $(EXEC_MAKEFILE)"
+	@echo "exec makefile path:   $(EXEC_MAKEFILE_PATH)"
+	@echo "exec dir:             $(EXEC_DIR)"
+	@echo
+	@echo "-------------------- system info --------------------"
+	cat /etc/centos-release
+	@echo
+	cat /proc/version
+	@echo
+	uname -r
+	@echo
+	@echo "eth name:  $(ETH_NAME)"
+	@echo "host ip:   $(HOST_IP)"
+	@echo "host name: $(HOST_NAME)"
+
+
+############################################################
 # env
+############################################################
+
+# 执行的makefile文件
+EXEC_MAKEFILE = $(abspath $(firstword $(MAKEFILE_LIST)))
+# 执行的makefile路径
+EXEC_MAKEFILE_PATH = $(dir $(EXEC_MAKEFILE))
+# 执行的makefile所在的文件夹
+EXEC_DIR = $(shell basename $(EXEC_MAKEFILE_PATH))
+
+# time
+NOW = $(shell date '+%Y-%m-%d %H:%M:%S')
+NOW_TS = $(shell date '+%s')
+
 DEVC_CENTOS_IMAGE=devc-centos-7.9:latest
 
 ROOT_DIR=/wine
 OPT_DIR=/wine/devbox/opt
 CODE_DIR=/wine/devbox/code
 SHARE_DIR=/wine/devbox/share
-DEVC_DIR=/wine/devbox/opt/devc
-INCLUDE_DIR=/wine/devbox/opt/include
+DEVC_DIR=$(OPT_DIR)/devc
+INCLUDE_DIR=$(OPT_DIR)/include
+ROAM_DIR=$(OPT_DIR)/roam
+WORK_DIR=$(OPT_DIR)/work
 
 # ETH_NAME=ens33
 ETH_NAME=$(shell ip -br l | awk '$$1 !~ "lo|vir|wl|br|veth|docker0" {print $$1}')
@@ -23,34 +74,23 @@ DEVC_WITH_OPTIONS = --rm -it --privileged \
 	--add-host="rabbitmq:$(HOST_IP)" \
 	-v $(DEVC_DIR):$(DEVC_DIR):ro \
 	-v $(INCLUDE_DIR):$(INCLUDE_DIR):ro \
+	-v $(ROAM_DIR):$(ROAM_DIR):ro \
+	-v $(WORK_DIR):$(WORK_DIR):ro \
 	-v $(SHARE_DIR):$(SHARE_DIR) 
 
-# help
-
-help:
-	@LC_ALL=C $(MAKE) -pRrq -f $(firstword $(MAKEFILE_LIST)) : 2>/dev/null | awk -v RS= -F: '/(^|\n)# Files(\n|$$)/,/(^|\n)# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | grep -E -v -e '^[^[:alnum:]]' -e '^$@$$'
-
+############################################################
 # alias 
+############################################################
+run: start		## run/start
+rund: startd	## run/start daemon
+at: enter		## attach to container
+attach: enter	## attach to container
+exec: enter		## attach to container
+st: status		## status
 
-run: start
-rund: startd
-at: enter
-attach: enter
-exec: enter
-st: status
-
-# docker prune
-prune:
+############################################################
+# cmd
+############################################################
+prune:	## docker image prune
 	docker image prune
-
-sys:
-	cat /etc/centos-release
-	@echo
-	cat /proc/version
-	@echo
-	uname -r
-	@echo
-	@echo "eth name:  $(ETH_NAME)"
-	@echo "host ip:   $(HOST_IP)"
-	@echo "host name: $(HOST_NAME)"
 

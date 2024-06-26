@@ -69,10 +69,12 @@ jdbc:
 	@echo "jdbc:mysql://mysql-confluence:3306/confluence?characterEncoding=utf8&useUnicode=true&useSSL=false"	
 
 
-EMAIL=xxx@xxx.com
+# EMAIL=xxx@xxx.com
+EMAIL=fenife@163.com
 NOTE_NAME=note
 ADDR=http://$(HOST_IP)
-SERVER_ID=xxx
+# 设置 - 一般配置 - 授权细节(可在页面搜索) - 服务器ID
+SERVER_ID=BA8O-5P5P-QN2T-3YI8
  
 auth-server:
 	docker exec $(CONTAINER_NAME) \
@@ -84,7 +86,7 @@ auth-server:
 APPKEY=conf
 # APPKEY=cz.morosystems.atlassian.plugin.easymind
 # APPKEY = com.mxgraph.confluence.plugins.diagramly
-# APPKEY=com.stiltsoft.confluence.plugin.tablefilter.tablefilter
+APPKEY=com.stiltsoft.confluence.plugin.tablefilter.tablefilter
 
 auth-app:
 	docker exec $(CONTAINER_NAME) \

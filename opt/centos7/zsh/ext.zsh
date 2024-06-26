@@ -19,16 +19,27 @@ zstyle :bracketed-paste-magic paste-finish pastefinish
 
 
 ############################################################
+export TERM xterm
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
 
-export WINE_OPT_DIR=/wine/devbox/opt
+export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/go/bin
+
+export BASE_OPT_DIR=/wine/devbox/opt
+
+############################################################
 
 alias runc="make -f Makefile.runc" 
 alias runs="make -f Makefile.runs"
+
 alias rinh="make -f Makefile.rinh"
 alias rinc="make -f Makefile.rinc"
 alias rind="make -f Makefile.rind"
 alias rinv="make -f Makefile.rinv"
 
-alias jopt="cd /wine/devbox/opt" 
-alias jdevc="cd /wine/devbox/opt/devc" 
+alias jopt="cd ${BASE_OPT_DIR}" 
+alias jdevc="cd ${BASE_OPT_DIR}/devc" 
+alias jroam="cd ${BASE_OPT_DIR}/roam" 
+alias jwork="cd ${BASE_OPT_DIR}/work" 
+
 
