@@ -1,3 +1,3 @@
 
-include ../include/Makefile.common
+include $(BASE_OPT_DIR)/include/Makefile.common
 
