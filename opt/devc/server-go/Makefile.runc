@@ -5,23 +5,23 @@ SERVER_GO_IMAGE=devc-server-go:latest
 SERVER_GO_NAME=server-go
 SERVER_GO_CODE_DIR=$(CODE_DIR)/server-go
 
-build: 
+build: 		## docker build image
 	docker build -f ./Dockerfile \
 	--build-arg IMAGE_FROM="$(SERVER_GO_IMAGE_FROM)" \
 	-t $(SERVER_GO_IMAGE) $(SERVER_GO_CODE_DIR)
 
-start: 
+start: 		## docker start container
 	docker run $(DEVC_WITH_OPTIONS) \
 	--name $(SERVER_GO_NAME) --hostname $(SERVER_GO_NAME) \
 	-p 8000:8000 \
 	-v $(SERVER_GO_CODE_DIR):$(SERVER_GO_CODE_DIR) \
 	$(SERVER_GO_IMAGE)
 
-stop:
+stop:		## docker stop container
 	docker stop $(SERVER_GO_NAME)
 	docker rm $(SERVER_GO_NAME)
 
-enter:
+enter:		## attach to container
 	docker exec -it $(SERVER_GO_NAME) zsh
 
 

@@ -1,7 +1,6 @@
 
 .PHONY: build start stop run pull at attach enter exec sys rund startd
 
-
 ############################################################
 # help
 ############################################################
@@ -11,10 +10,10 @@ common: 	## ---------------------------------------------
 help: 	## print help for targets with comments
 	@cat $(MAKEFILE_LIST) | grep -E '^[a-zA-Z_-]+:.*?## .*$$' | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s \033[0m%s\n", $$1, $$2}'
 
-cmd:
+cmd:	## print commands
 	@LC_ALL=C $(MAKE) -pRrq -f $(firstword $(MAKEFILE_LIST)) : 2>/dev/null | awk -v RS= -F: '/(^|\n)# Files(\n|$$)/,/(^|\n)# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | grep -E -v -e '^[^[:alnum:]]' -e '^$@$$'
 
-sys: ## print sys info
+sys: ## print system info
 	@echo "-------------------- time info --------------------"
 	@echo "now:     $(NOW)"
 	@echo "ts:      $(NOW_TS)"
@@ -34,7 +33,7 @@ sys: ## print sys info
 	@echo "eth name:  $(ETH_NAME)"
 	@echo "host ip:   $(HOST_IP)"
 	@echo "host name: $(HOST_NAME)"
-
+	@echo
 
 ############################################################
 # env

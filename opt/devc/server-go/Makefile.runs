@@ -1,12 +1,12 @@
 
-include ../Makefile
+include $(BASE_OPT_DIR)/include/Makefile.common
 
 SERVER_GO_CODE_DIR=$(CODE_DIR)/server-go
 
-cd:
+cd:		## cd code dir
 	cd $(SERVER_GO_CODE_DIR)	
 
-start: 
+start: 	## start service
 	cd $(SERVER_GO_CODE_DIR); \
 	go run .	
 

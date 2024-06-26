@@ -155,7 +155,7 @@ RUN set -eux; \
 # install others
 ############################################################
 
-RUN yum install -y --disablerepo="*" --enablerepo="base" mysql \
+RUN yum install -y --disablerepo="*" --enablerepo="base,extras" mysql etcd \
     && yum clean all
 
 ############################################################
