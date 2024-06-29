@@ -60,6 +60,7 @@ DEVC_DIR=$(OPT_DIR)/devc
 INCLUDE_DIR=$(OPT_DIR)/include
 ROAM_DIR=$(OPT_DIR)/roam
 WORK_DIR=$(OPT_DIR)/work
+RC_DIR=$(OPT_DIR)/rc
 
 # ETH_NAME=ens33
 ETH_NAME=$(shell ip -br l | awk '$$1 !~ "lo|vir|wl|br|veth|docker0" {print $$1}')
@@ -75,6 +76,7 @@ DEVC_WITH_OPTIONS = --rm -it --privileged \
 	-v $(INCLUDE_DIR):$(INCLUDE_DIR):ro \
 	-v $(ROAM_DIR):$(ROAM_DIR):ro \
 	-v $(WORK_DIR):$(WORK_DIR):ro \
+	-v $(RC_DIR):$(RC_DIR):ro \
 	-v $(SHARE_DIR):$(SHARE_DIR) 
 
 ############################################################

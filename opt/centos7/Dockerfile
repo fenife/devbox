@@ -204,17 +204,15 @@ RUN mv /usr/bin/systemctl /usr/bin/systemctl.bak \
 ############################################################
 # configs
 ############################################################
+ENV WINE_OPT_DIR=/wine/devbox/opt
 
 # zsh config
 # 自动补全
 ENV ZSH_CUSTOM=${HOME_DIR}/.oh-my-zsh/custom
-# RUN mkdir -p ${ZSH_CUSTOM}/plugins/incr
 COPY zsh/incr-0.2.zsh ${ZSH_CUSTOM}/plugins/incr/incr.zsh
 # zshr配置
-COPY zsh/ext.zsh /tmp/ 
-RUN cat /tmp/ext.zsh >> ${HOME_DIR}/.zshrc \
-    && rm -rf /tmp/*.zsh \
-    # 设置主题
+RUN echo >> ${HOME_DIR}/.zshrc \
+    && echo "source ${WINE_OPT_DIR}/rc/ext.zsh" >> ${HOME_DIR}/.zshrc \
     && sed -i "s/robbyrussell/ys/" ${HOME_DIR}/.zshrc 
 # 切换shell
 RUN chsh -s $(which zsh) 
@@ -236,9 +234,6 @@ COPY docker/daemon.json /etc/docker/
 # Docker服务器开放的端口，供容器外部连接使用(在启动容器时做端口映射)
 # EXPOSE 22   
 
-ENV DEVC_DIR=/wine/devbox/opt/devc
-ENV PATH="$PATH:${DEVC_DIR}/bin"
-
-WORKDIR ${DEVC_DIR}
+WORKDIR ${WINE_OPT_DIR}/devc
 
 CMD ["/bin/zsh"]
