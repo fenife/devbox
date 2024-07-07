@@ -25,7 +25,7 @@ export LANG=en_US.UTF-8
 
 export BASE_OPT_DIR=/wine/devbox/opt
 
-export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/go/bin:$BASE_OPT_DIR/devc/bin
+export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin::$BASE_OPT_DIR/devc/bin
 
 ############################################################
 

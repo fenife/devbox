@@ -21,6 +21,9 @@ https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-python/v
 # ms-python.debugpy
 https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-python/vsextensions/debugpy/2023.1.12492010/vspackage
 
+# ms-python.vscode-pylance
+https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-python/vsextensions/vscode-pylance/2021.2.0/vspackage
+
 # ms-toolsai.jupyter
 https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-toolsai/vsextensions/jupyter/2023.11.1100101639/vspackage?targetPlatform=linux-x64
 
