@@ -12,6 +12,11 @@ V8: 11.4.183.29-electron.0
 OS: Windows_NT x64 10.0.22631
 ```
 
+## install extension
+~/.vscode-server/bin/8b3775030ed1a69b13e4f4c628c612102e30a681/bin/code-server --install-extension ./ms-python.vscode-pylance-2021.2.0.vsix --force 
+
+ls ~/.vscode-server/extensions
+
 # vscode-server-linux-x64
 wget -O vscode-server-linux-x64-1.85.2.tar.gz https://update.code.visualstudio.com/commit:8b3775030ed1a69b13e4f4c628c612102e30a681/server-linux-x64/stable 
 
@@ -22,7 +27,7 @@ https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-python/v
 https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-python/vsextensions/debugpy/2023.1.12492010/vspackage
 
 # ms-python.vscode-pylance
-https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-python/vsextensions/vscode-pylance/2021.2.0/vspackage
+https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-python/vsextensions/vscode-pylance/2021.1.2/vspackage
 
 # ms-toolsai.jupyter
 https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-toolsai/vsextensions/jupyter/2023.11.1100101639/vspackage?targetPlatform=linux-x64
