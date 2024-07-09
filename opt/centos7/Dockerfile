@@ -11,8 +11,8 @@ ENV LANG=en_US.UTF-8
 ENV TERM xterm
 # home dir
 ENV HOME_DIR /root
-ENV BUILD_CACHE_DIR=/wine/cache/build
-ENV YUM_CACHE_DIR=/wine/cache/yum
+ENV CACHE_DIR_YUM=/wine/cache/yum
+ENV CACHE_DIR_GO=/wine/cache/go
 
 ############################################################
 # install base softwares
@@ -23,7 +23,7 @@ ADD repo/centos-base-ali.repo /etc/yum.repos.d/CentOS-Base.repo
 ADD repo/centos-epel-ali.repo /etc/yum.repos.d/epel.repo
 
 # 基础工具下载
-RUN --mount=type=cache,target=${YUM_CACHE_DIR} \
+RUN --mount=type=cache,target=${CACHE_DIR_YUM} \
     yum install -y curl wget tar bzip2 unzip vim passwd sudo tree rsync man git tig tmux \
     # 编译
     gcc gcc-c++ make yum-utils automake cmake autoconf rpm-build redhat-rpm-config \
@@ -46,7 +46,7 @@ RUN --mount=type=cache,target=${YUM_CACHE_DIR} \
 
 # openvswitch
 # see: https://gist.github.com/umardx/a31bf6a13600a55c0d07d4ca33133834
-RUN --mount=type=cache,target=${YUM_CACHE_DIR} \
+RUN --mount=type=cache,target=${CACHE_DIR_YUM} \
     yum install -y openssl11-libs libibverbs unbound unbound-devel graphviz \
     kernel-debug-devel libtool python-twisted-core \
     python-zope-interface PyQt4 desktop-file-utils libcap-ng-devel groff \
@@ -58,8 +58,7 @@ RUN --mount=type=cache,target=${YUM_CACHE_DIR} \
 ############################################################
 
 COPY pkg/openssl-1.1.1w.tar.gz /tmp/
-RUN --mount=type=cache,target=${BUILD_CACHE_DIR}/openssl \
-    cd /tmp/ \
+RUN cd /tmp/ \
     && tar -xzf openssl-1.1.1w.tar.gz \
     && cd openssl-1.1.1w  \
     && ./config --prefix=/usr \
@@ -74,8 +73,7 @@ RUN --mount=type=cache,target=${BUILD_CACHE_DIR}/openssl \
 # 安装zsh，默认安装在：/usr/local/bin/zsh
 # 参考：https://blog.csdn.net/u012605514/article/details/121797773
 COPY zsh/zsh-5.8.tar.xz /tmp/
-RUN --mount=type=cache,target=${BUILD_CACHE_DIR}/zsh \
-    cd /tmp \
+RUN cd /tmp \
     && tar -xf zsh-5.8.tar.xz \
     && cd zsh-5.8 \
     && ./configure --without-tcsetpgrp \
@@ -97,8 +95,7 @@ RUN cd /tmp \
 # python3
 ############################################################
 COPY pkg/Python-3.12.0.tgz /tmp/
-RUN --mount=type=cache,target=${BUILD_CACHE_DIR}/python \
-    cd /tmp/ \
+RUN cd /tmp/ \
     && tar -xzf Python-3.12.0.tgz \
     && cd Python-3.12.0 \
     && ./configure --prefix=/usr/local/python3.12 --with-ssl \
@@ -111,8 +108,7 @@ RUN ln -s /usr/local/python3.12/bin/python3.12 /usr/bin/python3.12 \
 ############################################################
 # golang
 ############################################################
-RUN --mount=type=cache,target=${BUILD_CACHE_DIR}/go \
-    cd /tmp \
+RUN cd /tmp \
     && wget https://golang.google.cn/dl/go1.22.3.linux-amd64.tar.gz \
     && tar -zxf go1.22.3.linux-amd64.tar.gz -C /usr/local \
     && rm -rf /tmp/go*
@@ -122,7 +118,7 @@ ENV PATH="$PATH:/usr/local/go/bin"
 RUN go env -w GOPROXY=https://goproxy.cn,direct \
     && go env -w GO111MODULE=on \
     && go env -w GOSUMDB='off'
-RUN --mount=type=cache,target=${BUILD_CACHE_DIR}/go \
+RUN --mount=type=cache,target=${CACHE_DIR_GO} \
     go install golang.org/x/tools/gopls@v0.15.3 \
     && go install github.com/go-delve/delve/cmd/dlv@v1.22.1 \
     && go install honnef.co/go/tools/cmd/staticcheck@v0.4.7 
@@ -148,7 +144,7 @@ RUN chmod +x /usr/local/bin/docker-compose
 # openvswitch
 ############################################################
 # see: https://blog.csdn.net/weixin_42072280/article/details/119764004
-# RUN --mount=type=cache,target=${YUM_CACHE_DIR} \
+# RUN --mount=type=cache,target=${CACHE_DIR_YUM} \
 #     yum install -y epel-release \
 #     && yum install -y centos-release-openstack-train \
 #     && yum install -y openvswitch libibverbs \
@@ -156,8 +152,7 @@ RUN chmod +x /usr/local/bin/docker-compose
 #
 # see: https://gist.github.com/umardx/a31bf6a13600a55c0d07d4ca33133834
 COPY pkg/openvswitch-2.13.0.tar.gz ${HOME_DIR}/rpmbuild/SOURCES/
-RUN --mount=type=cache,target=${BUILD_CACHE_DIR}/ovs \
-    set -eux; \
+RUN set -eux; \
     cd ${HOME_DIR}/rpmbuild/SOURCES \
     && tar -xzf openvswitch-*.tar.gz \
     && rpmbuild -bb --nocheck openvswitch-2.13.0/rhel/openvswitch-fedora.spec \
@@ -167,8 +162,7 @@ RUN --mount=type=cache,target=${BUILD_CACHE_DIR}/ovs \
 # git
 ############################################################
 COPY pkg/git-2.30.0.tar.gz /tmp/
-RUN --mount=type=cache,target=${BUILD_CACHE_DIR}/git \
-    set -eux; \
+RUN set -eux; \
     rm /usr/bin/git \
     && cd /tmp \
     && tar -zxf git-2.30.0.tar.gz \
@@ -183,7 +177,7 @@ RUN --mount=type=cache,target=${BUILD_CACHE_DIR}/git \
 # install others
 ############################################################
 
-RUN --mount=type=cache,target=${YUM_CACHE_DIR} \
+RUN --mount=type=cache,target=${CACHE_DIR_YUM} \
     yum install -y --disablerepo="*" --enablerepo="base,extras" \
     etcd ethtool 
     # && yum clean all
