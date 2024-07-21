@@ -24,6 +24,6 @@ stop:
 	docker rm $(CENTOS_NAME)
 
 enter:
-	docker exec -it $(CENTOS_NAME) zsh
+	docker exec -it $(CENTOS_NAME) bash
 
 

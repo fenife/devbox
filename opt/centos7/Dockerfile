@@ -24,34 +24,76 @@ ADD repo/centos-epel-ali.repo /etc/yum.repos.d/epel.repo
 
 # 基础工具下载
 RUN --mount=type=cache,target=${CACHE_DIR_YUM} \
-    yum install -y curl wget tar bzip2 unzip vim passwd sudo tree rsync man git tig tmux \
+    yum install -y \
+    curl wget tar bzip2 unzip vim passwd sudo tree rsync man git tig tmux 
     # 编译
-    gcc gcc-c++ make yum-utils automake cmake autoconf rpm-build redhat-rpm-config \
+RUN --mount=type=cache,target=${CACHE_DIR_YUM} \
+    yum install -y \
+    gcc gcc-c++ make yum-utils automake cmake autoconf rpm-build redhat-rpm-config 
     # 网络
-    iptables ipset iproute hostname net-tools telnet nc tcpdump route bridge-utils traceroute \
+RUN --mount=type=cache,target=${CACHE_DIR_YUM} \
+    yum install -y \
+    iptables ipset iproute hostname net-tools telnet nc tcpdump route bridge-utils traceroute 
     # 性能
-    htop psmisc vmstat iostat pidstat sysstat strace lsof \
+RUN --mount=type=cache,target=${CACHE_DIR_YUM} \
+    yum install -y \
+    htop psmisc vmstat iostat pidstat sysstat strace lsof 
     # 语言、组件
-    python-pip mysql-client redis openssh-server openssh-client \
+RUN --mount=type=cache,target=${CACHE_DIR_YUM} \
+    yum install -y \
+    python-pip mysql mysql-client redis openssh-server openssh-client etcd ethtool 
     # 依赖
-    zlib libffi libtool python-devel libpng-devel libjpeg-devel openssl-devel mysql-devel \
-    zlib-devel libffi-devel bzip2-devel sqlite-devel readline-devel tk-devel \
+RUN --mount=type=cache,target=${CACHE_DIR_YUM} \
+    yum install -y \
+    zlib libffi libtool python-devel libpng-devel libjpeg-devel openssl-devel mysql-devel 
+RUN --mount=type=cache,target=${CACHE_DIR_YUM} \
+    yum install -y \
+    zlib-devel libffi-devel bzip2-devel sqlite-devel readline-devel tk-devel 
+RUN --mount=type=cache,target=${CACHE_DIR_YUM} \
+    yum install -y \
     perl-ExtUtils-MakeMaker ncurses-devel curl-devel expat-devel gettext-devel \
-    kernel-devel kernel-debug-devel \
-    # dind
-    supervisor NetworkManager python-setuptools iptables-services mysql 
-    # --nogpgcheck
-    # && groupinstall "Development Tools" \
+    kernel-devel kernel-debug-devel 
+RUN --mount=type=cache,target=${CACHE_DIR_YUM} \
+    yum install -y \
+    supervisor NetworkManager python-setuptools iptables-services 
     # && yum clean all
 
+############################################################
 # openvswitch
+############################################################
+# see: https://blog.csdn.net/weixin_42072280/article/details/119764004
+# RUN --mount=type=cache,target=${CACHE_DIR_YUM} \
+#     yum install -y epel-release \
+#     && yum install -y centos-release-openstack-train \
+#     && yum install -y openvswitch libibverbs \
+#     && yum clean all 
+# 
 # see: https://gist.github.com/umardx/a31bf6a13600a55c0d07d4ca33133834
 RUN --mount=type=cache,target=${CACHE_DIR_YUM} \
-    yum install -y openssl11-libs libibverbs unbound unbound-devel graphviz \
-    kernel-debug-devel libtool python-twisted-core \
-    python-zope-interface PyQt4 desktop-file-utils libcap-ng-devel groff \
-    checkpolicy selinux-policy-devel python3-devel sphinx-build-3 python3-sphinx 
-    # && yum clean all
+    yum install -y openssl11-libs libibverbs unbound unbound-devel graphviz 
+RUN --mount=type=cache,target=${CACHE_DIR_YUM} \
+    yum install -y python3-devel python3-sphinx
+# RUN --mount=type=cache,target=${CACHE_DIR_YUM} \
+#     yum install -y kernel-debug-devel libtool python-twisted-core 
+# RUN --mount=type=cache,target=${CACHE_DIR_YUM} \
+#     yum install -y python-zope-interface PyQt4 desktop-file-utils libcap-ng-devel groff 
+# RUN --mount=type=cache,target=${CACHE_DIR_YUM} \
+#     yum install -y checkpolicy selinux-policy-devel sphinx-build-3
+# #    && yum clean all
+# build
+# COPY pkg/openvswitch-2.13.0.tar.gz ${HOME_DIR}/rpmbuild/SOURCES/
+# RUN set -eux; \
+#     cd ${HOME_DIR}/rpmbuild/SOURCES \
+#     && tar -xzf openvswitch-*.tar.gz \
+#     && rpmbuild -bb --nocheck openvswitch-2.13.0/rhel/openvswitch-fedora.spec 
+#     # && yum localinstall -y ${HOME_DIR}/rpmbuild/RPMS/x86_64/openvswitch-2.13.0-*.rpm  
+# install
+COPY ./ovs/ovs.rpmbuild.tar.gz /tmp/
+RUN set -eux; \
+    tar -xzf /tmp/ovs.rpmbuild.tar.gz -C ${HOME_DIR} \
+    && yum localinstall -y ${HOME_DIR}/rpmbuild/RPMS/x86_64/openvswitch-2.13.0-*.rpm \
+    && rm -rf /tmp/ovs.* \
+    && rm -rf ${HOME_DIR}/rpmbuild
 
 ############################################################
 # openssl
@@ -141,24 +183,6 @@ COPY docker/docker-compose-Linux-x86_64 /usr/local/bin/docker-compose
 RUN chmod +x /usr/local/bin/docker-compose 
 
 ############################################################
-# openvswitch
-############################################################
-# see: https://blog.csdn.net/weixin_42072280/article/details/119764004
-# RUN --mount=type=cache,target=${CACHE_DIR_YUM} \
-#     yum install -y epel-release \
-#     && yum install -y centos-release-openstack-train \
-#     && yum install -y openvswitch libibverbs \
-#     && yum clean all 
-#
-# see: https://gist.github.com/umardx/a31bf6a13600a55c0d07d4ca33133834
-COPY pkg/openvswitch-2.13.0.tar.gz ${HOME_DIR}/rpmbuild/SOURCES/
-RUN set -eux; \
-    cd ${HOME_DIR}/rpmbuild/SOURCES \
-    && tar -xzf openvswitch-*.tar.gz \
-    && rpmbuild -bb --nocheck openvswitch-2.13.0/rhel/openvswitch-fedora.spec \
-    && yum localinstall -y ${HOME_DIR}/rpmbuild/RPMS/x86_64/openvswitch-2.13.0-*.rpm  
-
-############################################################
 # git
 ############################################################
 COPY pkg/git-2.30.0.tar.gz /tmp/
@@ -173,14 +197,14 @@ RUN set -eux; \
     && make install \
     && rm -rf /tmp/git-*
 
-############################################################
-# install others
-############################################################
+# ############################################################
+# # install others
+# ############################################################
 
-RUN --mount=type=cache,target=${CACHE_DIR_YUM} \
-    yum install -y --disablerepo="*" --enablerepo="base,extras" \
-    etcd ethtool 
-    # && yum clean all
+# RUN --mount=type=cache,target=${CACHE_DIR_YUM} \
+#     yum install -y --disablerepo="*" --enablerepo="base,extras" \
+#     etcd ethtool 
+#     # && yum clean all
 
 ############################################################
 # vscode
@@ -217,10 +241,10 @@ COPY supervisor/* /etc/supervisord.d/
 # install systemctl 
 # https://github.com/gdraheim/docker-systemctl-replacement/
 # https://github.com/gdraheim/docker-systemctl-images/
-COPY sys/systemctl.py /tmp
-RUN mv /usr/bin/systemctl /usr/bin/systemctl.bak \
-    && cp /tmp/systemctl.py /usr/bin/systemctl \
-    && chmod a+x /usr/bin/systemctl 
+# COPY sys/systemctl.py /tmp
+# RUN mv /usr/bin/systemctl /usr/bin/systemctl.bak \
+#     && cp /tmp/systemctl.py /usr/bin/systemctl \
+#     && chmod a+x /usr/bin/systemctl 
 
 ############################################################
 # configs
@@ -250,11 +274,14 @@ COPY docker/daemon.json /etc/docker/
 # /usr/lib/systemd/system/docker.service
 
 # 配置ssh 
-# RUN sed -i 's/#PermitRootLogin yes/PermitRootLogin yes/g' /etc/ssh/sshd_config
-# RUN sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/g' /etc/ssh/sshd_config
-# Docker服务器开放的端口，供容器外部连接使用(在启动容器时做端口映射)
-# EXPOSE 22   
+RUN sed -i 's/#PermitRootLogin yes/PermitRootLogin yes/g' /etc/ssh/sshd_config
+RUN sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/g' /etc/ssh/sshd_config
+EXPOSE 22   
+COPY ssh/*.pub /tmp/ssh/
+RUN mkdir -p ${HOME_DIR}/.ssh \
+    && cat /tmp/ssh/*.pub > ${HOME_DIR}/.ssh/authorized_keys
 
 WORKDIR ${WINE_OPT_DIR}/devc
+# CMD ["/bin/zsh"]
 
-CMD ["/bin/zsh"]
+CMD ["/usr/sbin/init"]
