@@ -1,6 +1,13 @@
 
 include $(BASE_OPT_DIR)/include/Makefile.common
 
+############################################################
+# venv
+############################################################
+
+############################################################
+# cvm1
+############################################################
 CVM_IMAGE=devc-cvm:latest
 CVM_NAME=cvm1
 
@@ -34,5 +41,4 @@ stop:		## docker stop container
 
 enter:		## attach to container
 	docker exec -it $(CVM_NAME) zsh
-
 

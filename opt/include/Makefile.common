@@ -63,7 +63,7 @@ WORK_DIR=$(OPT_DIR)/work
 RC_DIR=$(OPT_DIR)/rc
 
 # ETH_NAME=ens33
-ETH_NAME=$(shell ip -br l | awk '$$1 !~ "lo|vir|wl|br|veth|docker0" {print $$1}')
+ETH_NAME=$(shell ip -br l | awk '$$1 !~ "lo|vir|wl|br|veth|docker0|flannel|cni" {print $$1}')
 HOST_IP=$(shell ifconfig  | grep $(ETH_NAME) -A 2 | grep inet | head -1 | awk '{print $$2}')
 HOST_NAME=$(shell hostname)
 
