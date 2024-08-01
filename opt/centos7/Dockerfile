@@ -201,9 +201,9 @@ RUN set -eux; \
 # # install others
 # ############################################################
 
-# RUN --mount=type=cache,target=${CACHE_DIR_YUM} \
-#     yum install -y --disablerepo="*" --enablerepo="base,extras" \
-#     etcd ethtool 
+RUN --mount=type=cache,target=${CACHE_DIR_YUM} \
+    yum install -y --disablerepo="*" --enablerepo="base,extras,epel" \
+    iftop 
 #     # && yum clean all
 
 ############################################################
@@ -228,6 +228,8 @@ ENV VSCODE_BIN=${VSCODE_BIN_DIR}/bin/code-server
 RUN cd /tmp/vscode/ext/ \
     # 传入 code-server 执行文件的路径，在脚本里遍历安装扩展文件
     && ./install.sh ${VSCODE_BIN}
+# ENV VSCODE_BIN ${VSCODE_BIN}
+
 
 ############################################################
 # others
