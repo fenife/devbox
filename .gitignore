@@ -2,5 +2,6 @@
 share
 **/*.pub
 
+**/kind-backup/*
 
 

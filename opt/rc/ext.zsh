@@ -50,6 +50,7 @@ alias jroam="cd ${BASE_OPT_DIR}/roam"
 alias jwork="cd ${BASE_OPT_DIR}/work" 
 alias jrc="cd ${BASE_OPT_DIR}/rc" 
 alias jk8s="cd ${BASE_OPT_DIR}/k8s" 
+alias jicode="cd /wine/devbox/code" 
 
 
 ############################################################
