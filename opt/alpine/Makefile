@@ -1,8 +1,8 @@
 
 include ../include/Makefile.common
 
-ALPINE_IMAGE_FROM=alpine:3.19
-ALPINE_IMAGE=dind-alpine-3.19:latest
+ALPINE_IMAGE_FROM=alpine:3.20
+ALPINE_IMAGE=alpine-base:3.20
 ALPINE_NAME=alpine3
 
 pull:
