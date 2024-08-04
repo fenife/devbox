@@ -6,7 +6,7 @@ networking:
   serviceSubnet: "10.96.0.0/16"
 nodes:
 - role: control-plane
-  image: kindest/node:v1.30.0
+  image: kindest/node:v1.25.8
   extraMounts:
   - hostPath: /wine/devbox/opt/k8s/kind-mnt
     containerPath: /kind-mnt
@@ -15,7 +15,7 @@ nodes:
     hostPort: 8080
     protocol: TCP
 - role: worker
-  image: kindest/node:v1.30.0
+  image: kindest/node:v1.25.8
 - role: worker
-  image: kindest/node:v1.30.0
+  image: kindest/node:v1.25.8
 

@@ -1,10 +1,31 @@
 
+## docker
+打开 /etc/docker/daemon.json，添加：
+```bash
+{
+    "insecure-registries": [
+        "register.dev.local:5000"
+    ]
+}
+```
+重启docker：
+```bash
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+```
+
+## register
+打开 /etc/hosts ，添加：
+127.0.0.1 register.dev.local
+
+
+
 
 ## kubectl
-curl -LO "https://dl.k8s.io/release/v1.30.0/bin/linux/amd64/kubectl"
+curl -LO "https://dl.k8s.io/release/v1.25.8/bin/linux/amd64/kubectl"
 chmod +x kubectl
 sudo cp kubectl /usr/local/bin
-mv kubectl kubectl-v1.30.0
+mv kubectl kubectl-v1.25.8
 
 ## kind
 
