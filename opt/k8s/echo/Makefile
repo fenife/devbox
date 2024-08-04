@@ -24,7 +24,13 @@ start-np:		## start svc nodeport
 stop-np:		## stop svc nodeport
 	kubectl delete -f svc-nodeport.yaml
 
-start: start-pod start-svc start-np	## start all 
+start-lb:		## start svc loadbalancer
+	kubectl apply -f svc-lb.yaml
+
+stop-lb:		## stop svc loadbalancer
+	kubectl delete -f svc-lb.yaml
+
+start: load start-pod start-svc start-np	## start all 
 
 clean: stop-pod stop-svc stop-np	## clean all
 
@@ -43,14 +49,14 @@ push: tag		## push image to local registry
 # pod runtime
 ############################################################
 NODE := local-worker
-POD := echo-app-mbzxt 
-SVC_IP := 10.96.101.125
+POD := echo-app-gfw67
+SVC_IP := 10.96.191.22
 SVC_DNS := echo-svc.default
 
 NODE_EXEC := docker exec -it $(NODE)
 POD_EXEC := kubectl exec $(POD) --
 
-atn:	## attach node
+atw:	## attach worker node
 	docker exec -it $(NODE) bash
 
 atp:	## attach pod
@@ -67,3 +73,9 @@ ping2: 		## curl service dns name from pod
 
 ping3: 		## service nodeport
 	$(NODE_EXEC) curl -s http://127.0.0.1:30006
+
+ping4: 		## localhost and nodeport
+	curl -s http://127.0.0.1:30006
+
+ping5: 		## localhost and loadbalancer
+	curl -s http://127.0.0.1:30008
