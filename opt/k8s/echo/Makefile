@@ -30,9 +30,15 @@ start-lb:		## start svc loadbalancer
 stop-lb:		## stop svc loadbalancer
 	kubectl delete -f svc-lb.yaml
 
-start: load start-pod start-svc start-np	## start all 
+start-ing:		## start ingress
+	kubectl apply -f svc-ingress.yaml
 
-clean: stop-pod stop-svc stop-np	## clean all
+stop-ing:		## stop ingress
+	kubectl delete -f svc-ingress.yaml
+
+start: load start-pod start-svc start-np start-lb ## start all 
+
+clean: stop-pod stop-svc stop-np stop-lb	## clean all
 
 tag:		## tag image 
 	docker tag $(ECHO_APP_IMAGE) $(REGISTER_ECHO_APP_IMAGE)
@@ -49,8 +55,8 @@ push: tag		## push image to local registry
 # pod runtime
 ############################################################
 NODE := local-worker
-POD := echo-app-gfw67
-SVC_IP := 10.96.191.22
+POD := echo-app-9vjv9
+SVC_IP := 10.96.167.207
 SVC_DNS := echo-svc.default
 
 NODE_EXEC := docker exec -it $(NODE)
@@ -79,3 +85,7 @@ ping4: 		## localhost and nodeport
 
 ping5: 		## localhost and loadbalancer
 	curl -s http://127.0.0.1:30008
+
+# 域名在 /etc/hosts 中配置
+ping6: 		## ingress
+	curl http://echo.dev.local:10080
