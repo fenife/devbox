@@ -25,7 +25,7 @@ export LANG=en_US.UTF-8
 
 export BASE_OPT_DIR=/wine/devbox/opt
 
-export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin::$BASE_OPT_DIR/devc/bin
+export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/go/bin:$BASE_OPT_DIR/devc/bin
 
 ############################################################
 # alias
@@ -50,7 +50,7 @@ alias jroam="cd ${BASE_OPT_DIR}/roam"
 alias jwork="cd ${BASE_OPT_DIR}/work" 
 alias jrc="cd ${BASE_OPT_DIR}/rc" 
 alias jk8s="cd ${BASE_OPT_DIR}/k8s" 
-alias jicode="cd /wine/devbox/code" 
+alias jicode="cd /wine/devbox/icode" 
 
 
 ############################################################
