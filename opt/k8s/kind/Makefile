@@ -32,6 +32,8 @@ info:
 	kubectl get pods -o wide --all-namespaces
 	@echo
 	kubectl get svc -o wide --all-namespaces
+	@echo
+	kubectl get ingress -o wide --all-namespaces
 
 image:
 	docker exec -it local-worker crictl images
@@ -56,7 +58,9 @@ stop-registry:	## stop docker registry
 # IMAGE := golang:1.22.5-alpine3.20
 # IMAGE := alpine:3.20
 # IMAGE := kindest/node:v1.25.8
-IMAGE := registry:2.8
+# IMAGE := registry:2.8
+# IMAGE := kindest/node:v1.25.16
+IMAGE := kindest/node:v1.27.0
 pull:
 	docker pull m.daocloud.io/docker.io/$(IMAGE)
 	docker tag m.daocloud.io/docker.io/$(IMAGE) $(IMAGE)
