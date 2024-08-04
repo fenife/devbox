@@ -6,27 +6,33 @@ REGISTER_ECHO_APP_IMAGE=register.dev.local:5000/echo-app:latest
 ECHO_APP_NAME=echo-app
 CLUSTER_NAME=local
 
-start-pod:
+start-pod:		## start pod
 	kubectl apply -f rs.yaml
 
-stop-pod:
+stop-pod:		## stop pod
 	kubectl delete -f rs.yaml
 
-start-svc:
+start-svc:		## start svc
 	kubectl apply -f svc.yaml
 
-stop-svc:
+stop-svc:		## stop svc
 	kubectl delete -f svc.yaml
 
-start: start-pod start-svc
+start-np:		## start svc nodeport
+	kubectl apply -f svc-nodeport.yaml
 
-clean: stop-pod stop-svc
+stop-np:		## stop svc nodeport
+	kubectl delete -f svc-nodeport.yaml
 
-tag:
+start: start-pod start-svc start-np	## start all 
+
+clean: stop-pod stop-svc stop-np	## clean all
+
+tag:		## tag image 
 	docker tag $(ECHO_APP_IMAGE) $(REGISTER_ECHO_APP_IMAGE)
 
 # kind load docker-image $(REGISTER_ECHO_APP_IMAGE) --name $(CLUSTER_NAME)
-load: 
+load: 	## load image to kind
 	kind load docker-image $(ECHO_APP_IMAGE) --name $(CLUSTER_NAME)
 
 push: tag		## push image to local registry
@@ -44,19 +50,20 @@ SVC_DNS := echo-svc.default
 NODE_EXEC := docker exec -it $(NODE)
 POD_EXEC := kubectl exec $(POD) --
 
-atn:
+atn:	## attach node
 	docker exec -it $(NODE) bash
 
-atp:
+atp:	## attach pod
 	kubectl exec -it $(POD) bash
 
-# curl service ip from node
-ping1:
+ping1:	## curl service ip from node
 	$(NODE_EXEC) curl -s http://$(SVC_IP):6000
 
-# curl service dns name from pod
 # see: file in pod: /etc/resolv.conf
-ping2: 
+ping2: 		## curl service dns name from pod
 	$(POD_EXEC) cat /etc/resolv.conf
 	@echo
 	$(POD_EXEC) curl -s http://$(SVC_DNS):6000
+
+ping3: 		## service nodeport
+	$(NODE_EXEC) curl -s http://127.0.0.1:30006
