@@ -10,12 +10,12 @@ COPY go.mod go.sum ./
 RUN go mod download 
 
 COPY *.go .
-RUN GOOS=linux GOARCH=amd64 go build -o echo-srv ./
+RUN GOOS=linux GOARCH=amd64 go build -o echo-app ./
 
 
-FROM alpine:3.20
-COPY --from=builder /go/src/app/echo-srv /go/src/app/
+FROM alpine-base:3.20
+COPY --from=builder /go/src/app/echo-app /go/src/app/
 EXPOSE 6000
-ENTRYPOINT ["/go/src/app//echo-srv"]
+ENTRYPOINT ["/go/src/app/echo-app"]
 
 
