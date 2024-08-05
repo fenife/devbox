@@ -36,6 +36,12 @@ start-ing:		## start ingress
 stop-ing:		## stop ingress
 	kubectl delete -f svc-ingress.yaml
 
+start-deploy:		## start deployment
+	kubectl apply -f deploy.yaml
+
+stop-deploy:		## stop deployment
+	kubectl delete -f deploy.yaml
+
 start: load start-pod start-svc start-np start-lb ## start all 
 
 clean: stop-pod stop-svc stop-np stop-lb	## clean all
