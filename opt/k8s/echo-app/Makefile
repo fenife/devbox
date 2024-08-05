@@ -6,45 +6,25 @@ REGISTER_ECHO_APP_IMAGE=register.dev.local:5000/echo-app:latest
 ECHO_APP_NAME=echo-app
 CLUSTER_NAME=local
 
-start-pod:		## start pod
-	kubectl apply -f rs.yaml
+############################################################
+# echo-app docker 
+############################################################
 
-stop-pod:		## stop pod
-	kubectl delete -f rs.yaml
+build: 	## docker build image
+	docker build -t $(ECHO_APP_IMAGE) ./echo-go
 
-start-svc:		## start svc
-	kubectl apply -f svc.yaml
+start: 	## docker start echo-app
+	docker run --rm -it \
+	--name $(ECHO_APP_NAME) --hostname $(ECHO_APP_NAME) \
+	-p 6000:6000 \
+	$(ECHO_APP_NAME)
 
-stop-svc:		## stop svc
-	kubectl delete -f svc.yaml
+stop:	## docker stop echo-app
+	docker stop $(ECHO_APP_NAME)
+	docker rm $(ECHO_APP_NAME)
 
-start-np:		## start svc nodeport
-	kubectl apply -f svc-nodeport.yaml
-
-stop-np:		## stop svc nodeport
-	kubectl delete -f svc-nodeport.yaml
-
-start-lb:		## start svc loadbalancer
-	kubectl apply -f svc-lb.yaml
-
-stop-lb:		## stop svc loadbalancer
-	kubectl delete -f svc-lb.yaml
-
-start-ing:		## start ingress
-	kubectl apply -f svc-ingress.yaml
-
-stop-ing:		## stop ingress
-	kubectl delete -f svc-ingress.yaml
-
-start-deploy:		## start deployment
-	kubectl apply -f deploy.yaml
-
-stop-deploy:		## stop deployment
-	kubectl delete -f deploy.yaml
-
-start: load start-pod start-svc start-np start-lb ## start all 
-
-clean: stop-pod stop-svc stop-np stop-lb	## clean all
+enter:	## docker attach echo-app container
+	docker exec -it $(ECHO_APP_NAME) bash
 
 tag:		## tag image 
 	docker tag $(ECHO_APP_IMAGE) $(REGISTER_ECHO_APP_IMAGE)
@@ -56,6 +36,49 @@ load: 	## load image to kind
 push: tag		## push image to local registry
 	docker push $(REGISTER_ECHO_APP_IMAGE)
 
+############################################################
+# echo-app k8s
+############################################################
+
+start-pod:		## start pod
+	kubectl apply -f ./yaml/rs.yaml
+
+stop-pod:		## stop pod
+	kubectl delete -f ./yaml/rs.yaml
+
+start-svc:		## start svc
+	kubectl apply -f ./yaml/svc.yaml
+
+stop-svc:		## stop svc
+	kubectl delete -f ./yaml/svc.yaml
+
+start-np:		## start svc nodeport
+	kubectl apply -f ./yaml/svc-nodeport.yaml
+
+stop-np:		## stop svc nodeport
+	kubectl delete -f ./yaml/svc-nodeport.yaml
+
+start-lb:		## start svc loadbalancer
+	kubectl apply -f ./yaml/svc-lb.yaml
+
+stop-lb:		## stop svc loadbalancer
+	kubectl delete -f ./yaml/svc-lb.yaml
+
+start-ing:		## start ingress
+	kubectl apply -f ./yaml/svc-ingress.yaml
+
+stop-ing:		## stop ingress
+	kubectl delete -f ./yaml/svc-ingress.yaml
+
+start-deploy:		## start deployment
+	kubectl apply -f ./yaml/deploy.yaml
+
+stop-deploy:		## stop deployment
+	kubectl delete -f ./yaml/deploy.yaml
+
+start-all: load start-pod start-svc start-np start-lb ## start all 
+
+clean-all: stop-pod stop-svc stop-np stop-lb	## clean all
 
 ############################################################
 # pod runtime
