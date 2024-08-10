@@ -197,15 +197,6 @@ RUN set -eux; \
     && make install \
     && rm -rf /tmp/git-*
 
-# ############################################################
-# # install others
-# ############################################################
-
-RUN --mount=type=cache,target=${CACHE_DIR_YUM} \
-    yum install -y --disablerepo="*" --enablerepo="base,extras,epel" \
-    iftop 
-#     # && yum clean all
-
 ############################################################
 # vscode
 ############################################################
@@ -229,6 +220,16 @@ RUN cd /tmp/vscode/ext/ \
     # 传入 code-server 执行文件的路径，在脚本里遍历安装扩展文件
     && ./install.sh ${VSCODE_BIN}
 # ENV VSCODE_BIN ${VSCODE_BIN}
+
+
+# ############################################################
+# # install others
+# ############################################################
+
+RUN --mount=type=cache,target=${CACHE_DIR_YUM} \
+    yum install -y --disablerepo="*" --enablerepo="base,extras,epel" \
+    iftop conntrack 
+#     # && yum clean all
 
 
 ############################################################
