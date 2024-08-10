@@ -30,6 +30,9 @@ sys: ## print system info
 	@echo
 	uname -r
 	@echo
+	# ifconfig  | grep $(ETH_NAME) -A 2 | grep inet 
+	ifconfig  | grep $(ETH_NAME) -A 2 | grep inet | head -1 | awk '{print $$2}'
+	@echo
 	@echo "eth name:  $(ETH_NAME)"
 	@echo "host ip:   $(HOST_IP)"
 	@echo "host name: $(HOST_NAME)"
@@ -63,7 +66,7 @@ WORK_DIR=$(OPT_DIR)/work
 RC_DIR=$(OPT_DIR)/rc
 
 # ETH_NAME=ens33
-ETH_NAME=$(shell ip -br l | awk '$$1 !~ "lo|vir|wl|br|veth|docker0|flannel|cni" {print $$1}')
+ETH_NAME=$(shell ifconfig -s | grep -E 'eth|ens' | grep -v 'veth' | awk '{print $$1}')
 HOST_IP=$(shell ifconfig  | grep $(ETH_NAME) -A 2 | grep inet | head -1 | awk '{print $$2}')
 HOST_NAME=$(shell hostname)
 
