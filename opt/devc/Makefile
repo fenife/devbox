@@ -2,18 +2,15 @@
 include $(BASE_OPT_DIR)/include/Makefile.common
 
 ############################################################
-# venv
+# build
 ############################################################
 
-############################################################
-# cvm1
-############################################################
 CVM_IMAGE=devc-cvm:latest
-CVM_NAME=cvm1
 
 DEVBOX_DIR=/wine/devbox
 DEVBOX_CODE_DIR=/wine/devbox/code
 CODE_DIR=/wine/code
+
 
 build: 		## docker build image
 	docker build -f ./Dockerfile \
@@ -21,6 +18,9 @@ build: 		## docker build image
 	-t $(CVM_IMAGE) \
 	.
 
+############################################################
+# cvm1
+############################################################
 CVM_OPTIONS = \
 	-d --privileged \
 	--add-host="$(HOST_NAME):$(HOST_IP)"  \
@@ -30,15 +30,17 @@ CVM_OPTIONS = \
 	-v $(DEVBOX_DIR):$(DEVBOX_DIR) \
 	-v $(CODE_DIR):$(CODE_DIR) 
 
-start: 		## docker start container
+CVM_NAME1=cvm1
+
+start1: 		## docker start cvm1
 	docker run $(CVM_OPTIONS) \
-	--name $(CVM_NAME) --hostname $(CVM_NAME) \
+	--name $(CVM_NAME1) --hostname $(CVM_NAME1) \
 	$(CVM_IMAGE)
 
-stop:		## docker stop container
-	docker stop $(CVM_NAME)
-	docker rm $(CVM_NAME)
+stop1:		## docker stop cvm1
+	docker stop $(CVM_NAME1)
+	docker rm $(CVM_NAME1)
 
-enter:		## attach to container
-	docker exec -it $(CVM_NAME) zsh
+at1:		## attach to cvm1
+	docker exec -it $(CVM_NAME1) zsh
 
