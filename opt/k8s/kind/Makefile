@@ -33,7 +33,11 @@ info:
 	@echo
 	kubectl get svc -o wide --all-namespaces
 	@echo
+	kubectl get endpoints -o wide --all-namespaces
+	@echo
 	kubectl get ingress -o wide --all-namespaces
+	@echo
+	kubectl get secret -o wide --all-namespaces
 
 image:
 	docker exec -it local-worker crictl images
