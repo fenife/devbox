@@ -44,17 +44,18 @@ function sys() {
     echo "-------------------- time info --------------------"
 	echo "now:     $now_dt"
 	echo "ts:      $now_ts"
-	echo
-	echo "-------------------- system info --------------------"
-	(set -x; cat /etc/centos-release); echo
-	(set -x; cat /proc/version); echo
-    (set -x; uname -r); echo
+    echo
+	echo "-------------------- host info --------------------"
 	echo "eth name:  $eth_name"
 	echo "host ip:   $host_ip"
 	echo "host name: ${host_name}"
 	echo
+	echo "-------------------- version info --------------------"
+	(set -x; cat /etc/centos-release); echo
+	(set -x; cat /proc/version); echo
+    (set -x; uname -r); echo
 
     # set -x
     # ifconfig -s | grep -E 'eth|ens' | grep -v 'veth' | awk '{print $1}'
-    rune ifconfig -s \| grep -E 'eth|ens'
+    # rune ifconfig -s \| grep -E 'eth|ens'
 }

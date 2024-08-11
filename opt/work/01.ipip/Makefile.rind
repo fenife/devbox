@@ -26,15 +26,14 @@ ping1:	## ping ns1 to ns2
 ping2:  ## ping ns2 to ns1
 	ip netns exec ns2 ping 192.168.1.10 -W1 -c1
 
-pd1:
-	tcpdump -i peer1 -nvv -U -w /tmp/peer1.pcap &
+# pd1:
+# 	tcpdump -i peer1 -nvv -U -w /tmp/peer1.pcap &
 # sleep 1  
 # ip netns exec ns1 ping 192.168.2.10 -W1 -c1
 # sleep 1
 # $(call _stopp,tcpdump)
 # sleep 1
 # tcpdump -nvv -r /tmp/peer1.pcap
-
 
 
 
