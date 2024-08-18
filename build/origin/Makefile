@@ -1,4 +1,5 @@
 
+# IMAGE := b3log/siyuan:v3.0.17
 # IMAGE := ubuntu:22.04
 # IMAGE := ubuntu:20.04
 # IMAGE := golang:1.22.5
