@@ -1,7 +1,9 @@
+**/*.pub
 lib/bin/*
 lib/src/*
 lib/vscode/ext/*
 lib/vscode/vscode-server-*
+
 
 libos/centos7/pkg/*
 
