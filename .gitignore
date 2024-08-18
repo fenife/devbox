@@ -2,4 +2,8 @@
 **/share/*
 **/images/*
 
+**/*.tar*
+**/splits
+**/merges
+
 
