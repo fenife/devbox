@@ -8,7 +8,7 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV TERM xterm
 ENV HOME_DIR /root
 
-############################################################
+#------------------------------------------------------------
 # repo and base softwares
 RUN apt update \
     && apt install -y tzdata ca-certificates \
