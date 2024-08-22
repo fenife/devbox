@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"server-go/config"
 	mw "server-go/controller/middleware"
 	"server-go/router"
+
+	"github.com/gin-gonic/gin"
 
 	_ "server-go/docs" // 导入swag生成的接口文档
 )
