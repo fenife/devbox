@@ -1,5 +1,5 @@
 
-include ../../include/Makefile.common
+include $(INC_DIR)/Makefile.common
 
 RABBITMQ_IMAGE=rabbitmq:3.12-management
 RABBITMQ_NAME=rabbitmq
@@ -11,7 +11,7 @@ pull:
 	docker pull m.daocloud.io/docker.io/$(RABBITMQ_IMAGE)
 	docker tag m.daocloud.io/docker.io/$(RABBITMQ_IMAGE) $(RABBITMQ_IMAGE)
 
-start:
+start:	## start
 	docker run -d \
 	-p 5672:5672 -p 15672:15672  \
 	--name $(RABBITMQ_NAME) \
@@ -21,13 +21,13 @@ start:
 	-e RABBITMQ_DEFAULT_VHOST=test \
 	$(RABBITMQ_IMAGE) 
 
-stop:
+stop:	## stop
 	docker stop $(RABBITMQ_NAME)
 	docker rm $(RABBITMQ_NAME)
 
-restart:
+restart:	## restart 
 	docker restart $(RABBITMQ_NAME)
 
-enter:
+enter:	## attach
 	docker exec -it $(RABBITMQ_NAME) bash
 
