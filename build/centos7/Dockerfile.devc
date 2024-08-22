@@ -1,3 +1,4 @@
+#------------------------------------------------------------
 FROM base-centos-7.9:latest as builder-base
 RUN yum install -y passwd sudo man tig tmux openssh-server \
     yum-utils autoconf rpm-build redhat-rpm-config \
@@ -73,6 +74,12 @@ RUN cd /tmp \
     && make install \
     && rm -rf /tmp/zsh-* 
 
+#------------------------------------------------------------
+FROM builder-base as builder-go
+RUN go install golang.org/x/tools/gopls@v0.15.3 
+RUN go install github.com/go-delve/delve/cmd/dlv@v1.22.1 
+RUN go install honnef.co/go/tools/cmd/staticcheck@v0.4.7 
+
 #------------------------------------------------------------ 
 FROM builder-base as builder-vscode
 # 安装vscode
@@ -88,14 +95,14 @@ RUN mkdir -p ${VSCODE_BIN_DIR} \
     && tar -xzf /tmp/vscode/vscode-server-linux-x64-1.85.2.tar.gz -C ${VSCODE_BIN_DIR} --strip 1 \
     && cd /tmp/vscode/ \
     # 传入 code-server 执行文件的路径，在脚本里遍历安装扩展文件
-    && ./install.sh ${VSCODE_BIN} \
-    && rm -rf /tmp/vscode
-# ENV VSCODE_BIN ${VSCODE_BIN}
+    # ~/.vscode-server/bin/8b3775030ed1a69b13e4f4c628c612102e30a681/bin/code-server 
+    && ./install.sh ${VSCODE_BIN} 
 
 #------------------------------------------------------------
 FROM builder-base
 
-RUN yum install -y python3
+# RUN yum install -y --disablerepo="*" --enablerepo="base,extras,epel" iftop conntrack 
+RUN yum install -y python3 iftop conntrack 
 
 RUN yum install -y libibverbs unbound 
 COPY --from=builder-ovs ${HOME_DIR}/rpmbuild/ ${HOME_DIR}/rpmbuild/
@@ -105,6 +112,15 @@ RUN set -eux; \
 
 COPY --from=builder-openssl /usr/local/openssl /usr/local/openssl
 RUN ln -sf /usr/local/openssl/bin/openssl /usr/bin/openssl 
+
+COPY --from=builder-python /usr/local/python3.12/ /usr/local/python3.12/
+RUN ln -s /usr/local/python3.12/bin/python3.12 /usr/bin/python3.12 \
+    && ln -s /usr/local/python3.12/bin/pip3.12 /usr/bin/pip3.12
+
+COPY --from=builder-git /usr/local/git /usr/local/git
+RUN rm -rf /usr/bin/git \
+    && ln -sf /usr/local/git/bin/git /usr/bin/git
+ENV PATH=$PATH:/usr/local/git/bin
 
 COPY --from=builder-zsh /usr/local/zsh /usr/local/zsh 
 RUN ln -s /usr/local/zsh/bin/zsh /bin/zsh \
@@ -117,46 +133,16 @@ RUN cd /tmp \
     && cp ${HOME_DIR}/.oh-my-zsh/templates/zshrc.zsh-template ${HOME_DIR}/.zshrc \
     && rm -rf /tmp/ohmyzsh-*
 
-COPY --from=builder-python /usr/local/python3.12/ /usr/local/python3.12/
-RUN ln -s /usr/local/python3.12/bin/python3.12 /usr/bin/python3.12 \
-    && ln -s /usr/local/python3.12/bin/pip3.12 /usr/bin/pip3.12
+COPY --from=builder-go ${HOME_DIR}/go/ ${HOME_DIR}/go/
 
-RUN go install golang.org/x/tools/gopls@v0.15.3 \
-    && go install github.com/go-delve/delve/cmd/dlv@v1.22.1 \
-    && go install honnef.co/go/tools/cmd/staticcheck@v0.4.7 
-
-COPY --from=builder-git /usr/local/git /usr/local/git
-RUN rm -rf /usr/bin/git
-ENV PATH=$PATH:/usr/local/git/bin
-
-# #------------------------------ 
-# # 安装vscode
-# # 对应以下版本：
-# #   版本: 1.85.2 (system setup)
-# #   提交: 8b3775030ed1a69b13e4f4c628c612102e30a681
-# #   日期: 2024-01-18T06:40:10.514Z
-# ENV VSCODE_ID=8b3775030ed1a69b13e4f4c628c612102e30a681
-# ENV VSCODE_BIN_DIR=${HOME_DIR}/.vscode-server/bin/${VSCODE_ID}
-# # ENV VSCODE_BIN=${VSCODE_BIN_DIR}/bin/code-server
-# COPY lib/vscode/ /tmp/vscode/
-# RUN mkdir -p ${VSCODE_BIN_DIR} \
-#     && tar -xzf /tmp/vscode/vscode-server-linux-x64-1.85.2.tar.gz -C ${VSCODE_BIN_DIR} --strip 1 \
-#     && cd /tmp/vscode/ \
-#     # 传入 code-server 执行文件的路径，在脚本里遍历安装扩展文件
-#     && ./install.sh ${VSCODE_BIN_DIR}/bin/code-server \
-#     && rm -rf /tmp/vscode
-# # ENV VSCODE_BIN ${VSCODE_BIN}
-COPY --from=builder-vscode ${HOME_DIR}/.vscode-server ${HOME_DIR}/.vscode-server
-
-#------------------------------ 
-# install others
-RUN yum install -y --disablerepo="*" --enablerepo="base,extras,epel" \
-    iftop conntrack 
+COPY --from=builder-vscode ${HOME_DIR}/.vscode-server/ ${HOME_DIR}/.vscode-server/
+COPY lib/vscode/ /tmp/vscode/
 
 ############################################################
 # configs
 ############################################################
-ENV WINE_OPT_DIR=/wine/devbox/opt
+
+ENV SHARE_DIR=/wine/devbox/share
 
 # zsh config
 # 自动补全
@@ -164,7 +150,7 @@ ENV ZSH_CUSTOM=${HOME_DIR}/.oh-my-zsh/custom
 COPY lib/zsh/incr-0.2.zsh ${ZSH_CUSTOM}/plugins/incr/incr.zsh
 # zshr配置
 RUN echo >> ${HOME_DIR}/.zshrc \
-    && echo "source ${WINE_OPT_DIR}/rc/ext.zsh" >> ${HOME_DIR}/.zshrc \
+    && echo "source ${SHARE_DIR}/rc/ext.zshrc" >> ${HOME_DIR}/.zshrc \
     && sed -i "s/robbyrussell/ys/" ${HOME_DIR}/.zshrc 
 # 切换shell
 RUN chsh -s $(which zsh) 
@@ -188,7 +174,7 @@ COPY lib/conf/ssh/*.pub /tmp/ssh/
 RUN mkdir -p ${HOME_DIR}/.ssh \
     && cat /tmp/ssh/*.pub > ${HOME_DIR}/.ssh/authorized_keys
 
-WORKDIR ${WINE_OPT_DIR}/devc
+WORKDIR ${SHARE_DIR}/devc
 
 # CMD ["/bin/bash"]
 CMD ["/bin/zsh"]
