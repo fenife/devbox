@@ -1,5 +1,5 @@
 
-include $(BASE_OPT_DIR)/include/Makefile.common
+include $(INC_DIR)/Makefile.common
 
 ECHO_APP_IMAGE=echo-app:latest
 REGISTER_ECHO_APP_IMAGE=register.dev.local:5000/echo-app:latest

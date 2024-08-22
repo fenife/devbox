@@ -1,30 +1,30 @@
 
-include $(BASE_OPT_DIR)/include/Makefile.common
+include $(INC_DIR)/Makefile.common
 
 CLUSTER_NAME=local
 
-start:
+start:	## start cluster
 	kind create cluster --config=cluster.yaml
 
-stop:
+stop:	## stop cluster
 	kind delete cluster -n $(CLUSTER_NAME)
 
-atc:
+atc:	## attach control plane
 	docker exec -it local-control-plane /bin/bash
 
-at1:
+at1:	## attach worker1
 	docker exec -it local-worker /bin/bash
 
-at2:
+at2:	## attach worker2
 	docker exec -it local-worker2 /bin/bash
 
-ctx:
+ctx:	## kubectl context
 	kubectl cluster-info --context kind-$(CLUSTER_NAME)
 
-ver:
+ver:	## kubectl version
 	kubectl version
 
-info:
+info:	## cluster info
 	kubectl cluster-info
 	@echo
 	kubectl get nodes -o wide
@@ -39,7 +39,7 @@ info:
 	@echo
 	kubectl get secret -o wide --all-namespaces
 
-image:
+image:		## worker image ls
 	docker exec -it local-worker crictl images
 
 start-registry:			## start docker registry
