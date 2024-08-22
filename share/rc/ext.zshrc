@@ -52,7 +52,7 @@ export LANG=en_US.UTF-8
 
 export INC_DIR=$INC_DIR
 
-export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/go/bin
+export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/go/bin:${HOME}/.local/bin
 
 ############################################################
 # alias
@@ -76,3 +76,11 @@ alias rinv="make -f Makefile.rinv"
 if [ -x "$(command -v kubectl)" ]; then
   source <(kubectl completion zsh)
 fi
+
+############################################################
+# venv
+VENV_DIR=/wine/venv
+
+alias sicode="source ${VENV_DIR}/icode/bin/activate"
+
+

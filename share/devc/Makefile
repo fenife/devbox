@@ -1,5 +1,6 @@
 
 include $(INC_DIR)/Makefile.common
+include ./Makefile.venv
 
 ############################################################
 # build
@@ -32,6 +33,7 @@ start1: 		## docker start vmc1
 	docker run -d $(DEVC_WITH_OPTIONS) \
 	--name $(VMC_NAME1) --hostname $(VMC_NAME1) \
 	--network $(DEVC_NET) --ip $(VMC_IP1) \
+	-v $(VENV_DIR):$(VENV_DIR) \
 	$(VMC_IMAGE)
 
 stop1:		## docker stop vmc1

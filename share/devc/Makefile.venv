@@ -1,0 +1,12 @@
+
+VENV_DIR=/wine/venv
+
+mkdir:		## mkdir venv
+	mkdir -p $(VENV_DIR)
+
+VENV_ICODE=$(VENV_DIR)/icode
+venv-icode:
+	virtualenv $(VENV_ICODE) -p python3.12
+	@echo
+	ls $(VENV_DIR)
+
