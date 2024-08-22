@@ -19,12 +19,6 @@ SHARE_DIR=$(BASE_DIR)/share
 INC_DIR=$(SHARE_DIR)/include
 INC_SH_DIR=$(INC_DIR)/sh
 
-# DEVC_DIR=$(OPT_DIR)/devc
-# INCLUDE_DIR=$(OPT_DIR)/include
-# ROAM_DIR=$(OPT_DIR)/roam
-# WORK_DIR=$(OPT_DIR)/work
-# RC_DIR=$(OPT_DIR)/rc
-
 # 执行的makefile文件
 EXEC_MAKEFILE = $(abspath $(firstword $(MAKEFILE_LIST)))
 # 执行的makefile路径
