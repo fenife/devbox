@@ -6,10 +6,24 @@
 
 .PHONY: build start stop run pull at attach enter exec sys rund startd
 
-
 ############################################################
 # env
 ############################################################
+
+BASE_DIR=/wine/devbox
+IMAGE_BUILD_DIR=$(BASE_DIR)/build
+IMAGE_SAVE_DIR=$(BASE_DIR)/images
+ICODE_DIR=$(BASE_DIR)/icode
+SHARE_DIR=$(BASE_DIR)/share
+
+INC_DIR=$(SHARE_DIR)/include
+INC_SH_DIR=$(INC_DIR)/sh
+
+# DEVC_DIR=$(OPT_DIR)/devc
+# INCLUDE_DIR=$(OPT_DIR)/include
+# ROAM_DIR=$(OPT_DIR)/roam
+# WORK_DIR=$(OPT_DIR)/work
+# RC_DIR=$(OPT_DIR)/rc
 
 # 执行的makefile文件
 EXEC_MAKEFILE = $(abspath $(firstword $(MAKEFILE_LIST)))
@@ -22,26 +36,10 @@ EXEC_DIR = $(shell basename $(EXEC_MAKEFILE_PATH))
 NOW = $(shell date '+%Y-%m-%d %H:%M:%S')
 NOW_TS = $(shell date '+%s')
 
-DEVC_CENTOS_IMAGE=devc-centos-7.9:latest
-
-ROOT_DIR=/wine
-OPT_DIR=/wine/devbox/opt
-IMAGE_BUILD_DIR=/wine/devbox/build
-IMAGE_SAVE_DIR=/wine/devbox/images
-COMMON_SH_DIR=$(BASE_OPT_DIR)/include/sh
-
-CODE_DIR=/wine/devbox/code
-SHARE_DIR=/wine/devbox/share
-DEVC_DIR=$(OPT_DIR)/devc
-INCLUDE_DIR=$(OPT_DIR)/include
-ROAM_DIR=$(OPT_DIR)/roam
-WORK_DIR=$(OPT_DIR)/work
-RC_DIR=$(OPT_DIR)/rc
-
 # ETH_NAME=ens33
-# ETH_NAME=$(shell ifconfig -s | grep -E 'eth|ens' | grep -v 'veth' | awk '{print $$1}')
-# HOST_IP=$(shell ifconfig  | grep $(ETH_NAME) -A 2 | grep inet | head -1 | awk '{print $$2}')
-HOST_IP=192.168.0.2
+ETH_NAME=$(shell ifconfig -s | grep -E 'eth|ens' | grep -v 'veth' | awk '{print $$1}')
+HOST_IP=$(shell ifconfig  | grep $(ETH_NAME) -A 2 | grep inet | head -1 | awk '{print $$2}')
+# HOST_IP=192.168.0.2
 HOST_NAME=$(shell hostname)
 
 DEVC_WITH_OPTIONS = --rm -it --privileged \
@@ -49,12 +47,8 @@ DEVC_WITH_OPTIONS = --rm -it --privileged \
 	--add-host="mysql:$(HOST_IP)"  \
 	--add-host="redis:$(HOST_IP)"  \
 	--add-host="rabbitmq:$(HOST_IP)" \
-	-v $(DEVC_DIR):$(DEVC_DIR):ro \
-	-v $(INCLUDE_DIR):$(INCLUDE_DIR):ro \
-	-v $(ROAM_DIR):$(ROAM_DIR):ro \
-	-v $(WORK_DIR):$(WORK_DIR):ro \
-	-v $(RC_DIR):$(RC_DIR):ro \
-	-v $(SHARE_DIR):$(SHARE_DIR) 
+	-v $(SHARE_DIR):$(SHARE_DIR) \
+	-v $(ICODE_DIR):$(ICODE_DIR) 
 
 ############################################################
 # help
@@ -85,7 +79,6 @@ sys: ## print system info
 	@echo
 	uname -r
 	@echo
-	# ifconfig  | grep $(ETH_NAME) -A 2 | grep inet 
 	ifconfig  | grep $(ETH_NAME) -A 2 | grep inet | head -1 | awk '{print $$2}'
 	@echo
 	@echo "eth name:  $(ETH_NAME)"
@@ -117,10 +110,10 @@ prune:	## docker image prune
 # 保存镜像
 # $1: docker image name
 define _save_image
-	$(COMMON_SH_DIR)/image.sh save $(1)
+	$(INC_SH_DIR)/image.sh save $(1)
 endef
 
 # $1: docker image name
 define _load_image
-	$(COMMON_SH_DIR)/image.sh load $(1)
+	$(INC_SH_DIR)/image.sh load $(1)
 endef

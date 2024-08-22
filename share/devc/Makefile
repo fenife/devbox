@@ -13,10 +13,7 @@ CODE_DIR=/wine/code
 
 
 build: 		## docker build image
-	docker build -f ./Dockerfile \
-	--build-arg IMAGE_FROM="$(DEVC_CENTOS_IMAGE)" \
-	-t $(CVM_IMAGE) \
-	.
+	docker build -f ./Dockerfile -t $(CVM_IMAGE) .
 
 ############################################################
 # cvm1
