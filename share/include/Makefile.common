@@ -1,7 +1,7 @@
 
 # usage:
-# export BASE_OPT_DIR=/wine/devbox/opt
-# include $(BASE_OPT_DIR)/include/Makefile.common
+# export INC_DIR=/wine/devbox/share/include
+# include $(INC_DIR)/Makefile.common
 
 
 .PHONY: build start stop run pull at attach enter exec sys rund startd
@@ -39,8 +39,9 @@ WORK_DIR=$(OPT_DIR)/work
 RC_DIR=$(OPT_DIR)/rc
 
 # ETH_NAME=ens33
-ETH_NAME=$(shell ifconfig -s | grep -E 'eth|ens' | grep -v 'veth' | awk '{print $$1}')
-HOST_IP=$(shell ifconfig  | grep $(ETH_NAME) -A 2 | grep inet | head -1 | awk '{print $$2}')
+# ETH_NAME=$(shell ifconfig -s | grep -E 'eth|ens' | grep -v 'veth' | awk '{print $$1}')
+# HOST_IP=$(shell ifconfig  | grep $(ETH_NAME) -A 2 | grep inet | head -1 | awk '{print $$2}')
+HOST_IP=192.168.0.2
 HOST_NAME=$(shell hostname)
 
 DEVC_WITH_OPTIONS = --rm -it --privileged \

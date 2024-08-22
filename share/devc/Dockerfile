@@ -1,5 +1,4 @@
-ARG IMAGE_FROM=
-FROM ${IMAGE_FROM}
+FROM devc-centos-7.9:latest
 
 # ENV CACHE_DIR_PIP=/wine/cache/pip
 

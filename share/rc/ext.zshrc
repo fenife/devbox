@@ -17,15 +17,42 @@ pastefinish() {
 zstyle :bracketed-paste-magic paste-init pasteinit
 zstyle :bracketed-paste-magic paste-finish pastefinish
 
+############################################################
+# dirs
+BASE_DIR=/wine/devbox
+BUILD_DIR=$BASE_DIR/build
+LOCAL_DIR=$BASE_DIR/local
+
+SHARE_DIR=$BASE_DIR/share
+DEVC_DIR=$SHARE_DIR/devc
+INC_DIR=$SHARE_DIR/include
+ROAM_DIR=$SHARE_DIR/roam
+WORK_DIR=$SHARE_DIR/work
+K8S_DIR=$SHARE_DIR/k8s
+
+ICODE_DIR=$BASE_DIR/icode
 
 ############################################################
+# jump 
+alias jbase="cd $BASE_DIR" 
+alias jbuild="cd $BUILD_DIR" 
+alias jlocal="cd $LOCAL_DIR" 
+alias jshare="cd $SHARE_DIR" 
+alias jdevc="cd $DEVC_DIR" 
+alias jroam="cd $ROAM_DIR" 
+alias jwork="cd $WORK_DIR" 
+alias jk8s="cd $K8S_DIR" 
+alias jicode="cd $ICODE_DIR" 
+
+############################################################
+# export
 export TERM xterm
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 
-export BASE_OPT_DIR=/wine/devbox/opt
+export INC_DIR=$INC_DIR
 
-export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/go/bin:$BASE_OPT_DIR/devc/bin
+# export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/go/bin:$BASE_OPT_DIR/devc/bin
 
 ############################################################
 # alias
@@ -44,15 +71,8 @@ alias rinc="make -f Makefile.rinc"
 alias rind="make -f Makefile.rind"
 alias rinv="make -f Makefile.rinv"
 
-alias jopt="cd ${BASE_OPT_DIR}" 
-alias jdevc="cd ${BASE_OPT_DIR}/devc" 
-alias jroam="cd ${BASE_OPT_DIR}/roam" 
-alias jwork="cd ${BASE_OPT_DIR}/work" 
-alias jrc="cd ${BASE_OPT_DIR}/rc" 
-alias jk8s="cd ${BASE_OPT_DIR}/k8s" 
-alias jicode="cd /wine/devbox/icode" 
-
-
 ############################################################
 # k8s
-source <(kubectl completion zsh)
+if [ -x "$(command -v kubectl)" ]; then
+  source <(kubectl completion zsh)
+fi
