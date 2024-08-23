@@ -1,4 +1,10 @@
 
+## 安装时可限制访问vscode，否则安装会很慢 (TODO: not work)
+sudo iptables -A OUTPUT -m string --string "visualstudio.com" --algo bm --to 65535 -j DROP
+sudo iptables -nvL | grep visual
+sudo iptables -D OUTPUT -m string --string "visualstudio.com" --algo bm --to 65535 -j DROP
+
+
 ## vscode
 ```text
 版本: 1.85.2 (system setup)
