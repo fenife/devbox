@@ -173,6 +173,7 @@ EXPOSE 22
 COPY lib/conf/ssh/*.pub /tmp/ssh/
 RUN mkdir -p ${HOME_DIR}/.ssh \
     && cat /tmp/ssh/*.pub > ${HOME_DIR}/.ssh/authorized_keys
+RUN echo r123 | passwd --stdin root
 
 WORKDIR ${SHARE_DIR}/devc
 
