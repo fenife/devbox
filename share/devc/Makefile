@@ -34,7 +34,9 @@ start1: 		## docker start vmc1
 	--name $(VMC_NAME1) --hostname $(VMC_NAME1) \
 	--network $(DEVC_NET) --ip $(VMC_IP1) \
 	-v $(VENV_DIR):$(VENV_DIR) \
+	-p 8000:8000 \
 	$(VMC_IMAGE)
+
 
 stop1:		## docker stop vmc1
 	docker stop $(VMC_NAME1)
