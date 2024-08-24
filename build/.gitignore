@@ -1,7 +1,7 @@
 **/*.pub
 lib/bin/*
 lib/src/*
-lib/vscode/ext/*
+lib/vscode/ext/*.vsix
 lib/vscode/vscode-server-*
 
 

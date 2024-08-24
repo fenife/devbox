@@ -117,12 +117,12 @@ ENV VSCODE_ID=8b3775030ed1a69b13e4f4c628c612102e30a681
 ENV VSCODE_BIN_DIR=${HOME_DIR}/.vscode-server/bin/${VSCODE_ID}
 ENV VSCODE_BIN=${VSCODE_BIN_DIR}/bin/code-server
 COPY lib/vscode/vscode-server-* /tmp/vscode/
-COPY lib/vscode/ext/ lib/vscode/install.sh /tmp/vscode/
 RUN mkdir -p ${VSCODE_BIN_DIR} \
-    && tar -xzf /tmp/vscode/vscode-server-linux-x64-1.85.2.tar.gz -C ${VSCODE_BIN_DIR} --strip 1 \
-    && cd /tmp/vscode/ \
-    # 传入 code-server 执行文件的路径，在脚本里遍历安装扩展文件
-    # ~/.vscode-server/bin/8b3775030ed1a69b13e4f4c628c612102e30a681/bin/code-server 
+    && tar -xzf /tmp/vscode/vscode-server-linux-x64-1.85.2.tar.gz -C ${VSCODE_BIN_DIR} --strip 1 
+# 传入 code-server 执行文件的路径，在脚本里遍历安装扩展文件
+# ~/.vscode-server/bin/8b3775030ed1a69b13e4f4c628c612102e30a681/bin/code-server 
+COPY lib/vscode/ext/ /tmp/vscode/ext/
+RUN cd /tmp/vscode/ext \
     && ./install.sh ${VSCODE_BIN} 
 
 #------------------------------------------------------------
