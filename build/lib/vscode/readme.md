@@ -4,7 +4,6 @@ sudo iptables -A OUTPUT -m string --string "visualstudio.com" --algo bm --to 655
 sudo iptables -nvL | grep visual
 sudo iptables -D OUTPUT -m string --string "visualstudio.com" --algo bm --to 65535 -j DROP
 
-
 ## vscode
 ```text
 版本: 1.85.2 (system setup)

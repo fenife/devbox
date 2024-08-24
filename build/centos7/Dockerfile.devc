@@ -32,13 +32,18 @@ COPY lib/src/openssl-1.1.1w.tar.gz /tmp/
 RUN cd /tmp/ \
     && tar -xzf openssl-1.1.1w.tar.gz \
     && cd openssl-1.1.1w  \
-    && ./config --prefix=/usr/local/openssl --openssldir=/usr/local/openssl \
+    && ./config --prefix=/usr/local/openssl --openssldir=/usr/local/openssl -fPIC -shared \
     && make \
     && make install_sw install_ssldirs \
     && rm -rf /tmp/openssl-*
+RUN ln -sf /usr/local/openssl/bin/openssl /usr/bin/openssl \
+    && ln -s /usr/local/openssl/lib/libssl.so.1.1  /usr/lib64/libssl.so.1.1 \
+    && ln -s /usr/local/openssl/lib/libssl.so.1.1  /usr/lib/libssl.so.1.1 \
+    && ln -s /usr/local/openssl/lib/libcrypto.so.1.1  /usr/lib64/libcrypto.so.1.1 \
+    && ln -s /usr/local/openssl/lib/libcrypto.so.1.1  /usr/lib/libcrypto.so.1.1 
 
 #------------------------------------------------------------
-FROM builder-openssl as builder-python
+FROM builder-openssl as builder-python3.12
 COPY lib/src/Python-3.12.0.tgz /tmp/
 RUN cd /tmp/ \
     && tar -xzf Python-3.12.0.tgz \
@@ -48,6 +53,27 @@ RUN cd /tmp/ \
     && make \
     && make install \
     && rm -rf /tmp/Python-*
+
+FROM builder-openssl as builder-python3.7
+COPY lib/src/Python-3.7.8.tgz /tmp/
+RUN cd /tmp/ \
+    && tar -xzf Python-3.7.8.tgz \
+    && cd Python-3.7.8 \
+    && ./configure --prefix=/usr/local/python3.7 --with-openssl=/usr/local/openssl \
+    --with-openssl-rpath=auto \
+    && make \
+    && make install \
+    && rm -rf /tmp/Python-*
+
+# COPY lib/src/Python-3.8.12.tgz /tmp/
+# RUN cd /tmp/ \
+#     && tar -xzf Python-3.8.12.tgz \
+#     && cd Python-3.8.12 \
+#     && ./configure --prefix=/usr/local/python3.8 --with-openssl=/usr/local/openssl \
+#     --with-openssl-rpath=auto \
+#     && make \
+#     && make install \
+#     && rm -rf /tmp/Python-*
 
 #------------------------------------------------------------
 FROM builder-base as builder-git
@@ -90,7 +116,8 @@ FROM builder-base as builder-vscode
 ENV VSCODE_ID=8b3775030ed1a69b13e4f4c628c612102e30a681
 ENV VSCODE_BIN_DIR=${HOME_DIR}/.vscode-server/bin/${VSCODE_ID}
 ENV VSCODE_BIN=${VSCODE_BIN_DIR}/bin/code-server
-COPY lib/vscode/ /tmp/vscode/
+COPY lib/vscode/vscode-server-* /tmp/vscode/
+COPY lib/vscode/ext/ lib/vscode/install.sh /tmp/vscode/
 RUN mkdir -p ${VSCODE_BIN_DIR} \
     && tar -xzf /tmp/vscode/vscode-server-linux-x64-1.85.2.tar.gz -C ${VSCODE_BIN_DIR} --strip 1 \
     && cd /tmp/vscode/ \
@@ -111,9 +138,13 @@ RUN set -eux; \
     && rm -rf ${HOME_DIR}/rpmbuild
 
 COPY --from=builder-openssl /usr/local/openssl /usr/local/openssl
-RUN ln -sf /usr/local/openssl/bin/openssl /usr/bin/openssl 
+RUN ln -sf /usr/local/openssl/bin/openssl /usr/bin/openssl \
+    && ln -s /usr/local/openssl/lib/libssl.so.1.1  /usr/lib64/libssl.so.1.1 \
+    && ln -s /usr/local/openssl/lib/libssl.so.1.1  /usr/lib/libssl.so.1.1 \
+    && ln -s /usr/local/openssl/lib/libcrypto.so.1.1  /usr/lib64/libcrypto.so.1.1 \
+    && ln -s /usr/local/openssl/lib/libcrypto.so.1.1  /usr/lib/libcrypto.so.1.1 
 
-COPY --from=builder-python /usr/local/python3.12/ /usr/local/python3.12/
+COPY --from=builder-python3.12 /usr/local/python3.12/ /usr/local/python3.12/
 RUN ln -s /usr/local/python3.12/bin/python3.12 /usr/bin/python3.12 \
     && ln -s /usr/local/python3.12/bin/pip3.12 /usr/bin/pip3.12
 
@@ -137,6 +168,14 @@ COPY --from=builder-go ${HOME_DIR}/go/ ${HOME_DIR}/go/
 
 COPY --from=builder-vscode ${HOME_DIR}/.vscode-server/ ${HOME_DIR}/.vscode-server/
 COPY lib/vscode/ /tmp/vscode/
+
+COPY --from=builder-python3.7 /usr/local/python3.7/ /usr/local/python3.7/
+RUN ln -s /usr/local/python3.7/bin/python3.7 /usr/bin/python3.7 \
+    && ln -s /usr/local/python3.7/bin/pip3.7 /usr/bin/pip3.7
+
+# COPY --from=builder-python /usr/local/python3.8/ /usr/local/python3.8/
+# RUN ln -s /usr/local/python3.8/bin/python3.8 /usr/bin/python3.8 \
+#     && ln -s /usr/local/python3.8/bin/pip3.8 /usr/bin/pip3.8
 
 ############################################################
 # configs
