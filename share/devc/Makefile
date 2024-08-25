@@ -2,6 +2,8 @@
 include $(INC_DIR)/Makefile.common
 include ./Makefile.venv
 
+CODE_DIR=/wine/code
+
 ############################################################
 # build
 ############################################################
@@ -33,8 +35,9 @@ start1: 		## docker start vmc1
 	docker run -d $(DEVC_WITH_OPTIONS) \
 	--name $(VMC_NAME1) --hostname $(VMC_NAME1) \
 	--network $(DEVC_NET) --ip $(VMC_IP1) \
+	-v $(CODE_DIR):$(CODE_DIR) \
 	-v $(VENV_DIR):$(VENV_DIR) \
-	-p 8000:8000 \
+	-p 8010:8010 \
 	$(VMC_IMAGE)
 
 

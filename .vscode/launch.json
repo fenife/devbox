@@ -8,7 +8,9 @@
             "name": "py: Current",
             "type": "debugpy",
             "request": "launch",
-            "program": "${file}",
+            "python": "/wine/venv/icode/bin/python",
+            // "program": "${file}",
+            "program": "${workspaceFolder}/icode/net-gui/cmd.py",
             "console": "integratedTerminal",
             "justMyCode": true
         },
