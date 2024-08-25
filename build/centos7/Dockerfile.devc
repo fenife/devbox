@@ -65,15 +65,16 @@ RUN cd /tmp/ \
     && make install \
     && rm -rf /tmp/Python-*
 
-# COPY lib/src/Python-3.8.12.tgz /tmp/
-# RUN cd /tmp/ \
-#     && tar -xzf Python-3.8.12.tgz \
-#     && cd Python-3.8.12 \
-#     && ./configure --prefix=/usr/local/python3.8 --with-openssl=/usr/local/openssl \
-#     --with-openssl-rpath=auto \
-#     && make \
-#     && make install \
-#     && rm -rf /tmp/Python-*
+FROM builder-openssl as builder-python3.10
+COPY lib/src/Python-3.10.12.tgz /tmp/
+RUN cd /tmp/ \
+    && tar -xzf Python-3.10.12.tgz \
+    && cd Python-3.10.12 \
+    && ./configure --prefix=/usr/local/python3.10 --with-openssl=/usr/local/openssl \
+    --with-openssl-rpath=auto \
+    && make \
+    && make install \
+    && rm -rf /tmp/Python-*
 
 #------------------------------------------------------------
 FROM builder-base as builder-git
@@ -195,9 +196,9 @@ COPY --from=builder-python3.7 /usr/local/python3.7/ /usr/local/python3.7/
 RUN ln -s /usr/local/python3.7/bin/python3.7 /usr/bin/python3.7 \
     && ln -s /usr/local/python3.7/bin/pip3.7 /usr/bin/pip3.7
 
-# COPY --from=builder-python /usr/local/python3.8/ /usr/local/python3.8/
-# RUN ln -s /usr/local/python3.8/bin/python3.8 /usr/bin/python3.8 \
-#     && ln -s /usr/local/python3.8/bin/pip3.8 /usr/bin/pip3.8
+COPY --from=builder-python3.10 /usr/local/python3.10/ /usr/local/python3.10/
+RUN ln -s /usr/local/python3.10/bin/python3.10 /usr/bin/python3.10 \
+    && ln -s /usr/local/python3.10/bin/pip3.10 /usr/bin/pip3.10
 
 COPY --from=builder-vscode-py27 ${HOME_DIR}/.vscode-server/ ${HOME_DIR}/.vscode-server-py27/
 COPY --from=builder-vscode-py37 ${HOME_DIR}/.vscode-server/ ${HOME_DIR}/.vscode-server-py37/
@@ -239,7 +240,7 @@ EXPOSE 22
 COPY lib/conf/ssh/*.pub /tmp/ssh/
 RUN mkdir -p ${HOME_DIR}/.ssh \
     && cat /tmp/ssh/*.pub > ${HOME_DIR}/.ssh/authorized_keys
-RUN echo r123 | passwd --stdin root
+# RUN echo r123 | passwd --stdin root
 
 WORKDIR ${SHARE_DIR}/devc
 
