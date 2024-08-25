@@ -1,20 +1,6 @@
-from engine import ShellClient
+from nicegui import ui
+from net import net_entry
 
-def test_local():
-    local = ShellClient(name="local")
-    local.run("whoami")
-    local.echo()
-    local.run("ls -alh")
-    local.echo()
+net_entry()
 
-    cmds = ["uname -a", "echo",
-            "ps -ef | grep main"]
-    local.run(cmds)
-
-
-def main():
-    test_local()
-
-
-if __name__ == "__main__":
-    main()
+ui.run(host="0.0.0.0", port=8010)
