@@ -1,6 +1,7 @@
 from typing import List, Union
 import fabric as fab
 from invoke import Result, run
+from streamlit import logger
 
 class ShellResult(object):
     def __init__(self, pwd: str, result: Result):
@@ -25,7 +26,8 @@ class ShellResult(object):
 
     @property
     def output(self):
-        text = "%s # %s\n%s\n" % (self.pwd, self.cmd, self.stdout)
+        # text = "%s # %s\n%s\n" % (self.pwd, self.cmd, self.stdout)
+        text = "# %s\n%s\n" % (self.cmd, self.stdout)
         return text
 
 class ShellClient(object):
@@ -67,10 +69,16 @@ class ShellClient(object):
                 self.run(cmd, echo=echo)
 
     def _run(self, cmd, echo=True) -> Result:
-        if self.is_local:
-            resp = self.conn.local(cmd, echo=echo)
-        else:
-            resp = self.conn.run(cmd, echo=echo)
+        try:
+            if self.is_local:
+                resp = self.conn.local(cmd, echo=echo)
+            else:
+                resp = self.conn.run(cmd, echo=echo)
+        except Exception as e:
+            print("aaa", e)
+            msg = str(e)
+            resp = Result(command=cmd, stdout=msg, stderr=msg, exited=-1)
+
         return resp
 
     def _build_result(self, resp: Result) -> ShellResult:
@@ -79,7 +87,7 @@ class ShellClient(object):
 
     def run(self, cmd, echo=True) -> ShellResult:
         resp = self._run(cmd, echo=echo)
-        if self.CMD_CD in cmd:
+        if self.CMD_CD == cmd:
             self.update_pwd()
         result = self._build_result(resp)
         return result
