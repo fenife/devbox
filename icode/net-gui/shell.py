@@ -1,5 +1,5 @@
 from pprint import pprint
-from engine import ShellClient, ShellResult
+from engine.shell import ShellClient, ShellResult
 
 
 def run_cmd(cmd: str) -> ShellResult:
