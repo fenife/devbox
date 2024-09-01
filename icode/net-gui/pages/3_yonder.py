@@ -69,6 +69,12 @@ st.set_page_config(layout="wide")
 
 if "datas" not in st.session_state:
     st.session_state.datas = []
+if "user" not in st.session_state:
+    st.session_state.user = {}
+if "cate" not in st.session_state:
+    st.session_state.cate = {}
+if "post" not in st.session_state:
+    st.session_state.post = {}
 
 col1, col2 = st.columns([1, 2], gap="small")
 # c2 = col2.container(height=700)
@@ -78,10 +84,12 @@ with st.sidebar:
 
     if st.button("clear datas"):
         st.session_state.datas = []
+        st.session_state.user = {}
+        st.session_state.cate = {}
+        st.session_state.post = {}
 
 ############################################################
 # view
-
 
 class Viewer(object):
     def __init__(self) -> None:
@@ -89,9 +97,14 @@ class Viewer(object):
 
     def show_user_list(self):
         df, sql = yonder.get_user_list()
-        with col2.container(border=True):
-            st.write(datetime.datetime.now(), sql)
-            st.dataframe(df, width=750)
+        # with col2.container(border=True):
+        #     st.write(datetime.datetime.now(), sql)
+        #     st.dataframe(df, width=750)
+        st.session_state.user = {
+            "ts": datetime.datetime.now(),
+            "sql": sql,
+            "df": df
+        }
 
     @st.dialog("Create User")
     def create_user(self):
@@ -108,9 +121,14 @@ class Viewer(object):
     def show_category_list(self):
         df, sql = yonder.get_category_list()
         # st.session_state.datas.append(df)
-        with col2.container(border=True):
-            st.write(datetime.datetime.now(), sql)
-            st.dataframe(df, width=750)
+        # with col2.container(border=True):
+        #     st.write(datetime.datetime.now(), sql)
+        #     st.dataframe(df, width=750)
+        st.session_state.cate = {
+            "ts": datetime.datetime.now(),
+            "sql": sql,
+            "df": df
+        }
 
     @st.dialog("Create Category")
     def create_category(self):
@@ -125,9 +143,14 @@ class Viewer(object):
 
     def show_post_list(self):
         df, sql = yonder.get_post_list()
-        with col2.container(border=True):
-            st.write(datetime.datetime.now(), sql)
-            st.dataframe(df, width=750)
+        # with col2.container(border=True):
+        #     st.write(datetime.datetime.now(), sql)
+        #     st.dataframe(df, width=750)
+        st.session_state.post = {
+            "ts": datetime.datetime.now(),
+            "sql": sql,
+            "df": df
+        }
 
     @st.dialog("Create Post")
     def create_post(self):
@@ -151,6 +174,9 @@ class Viewer(object):
 
 
 viewer = Viewer()
+
+#------------------------------------------------------------ 
+# col1
 
 with col1.container(border=True):
     st.markdown("##### user")
@@ -176,6 +202,26 @@ with col1.container(border=True):
     if st.button("add post (http)"):
         viewer.create_post()
 
+#------------------------------------------------------------ 
+# col2
+
+with col2.container(border=True):
+    user = st.session_state.user
+    if user:
+        st.write(user["ts"], user["sql"])
+        st.dataframe(user["df"], width=750)
+
+with col2.container(border=True):
+    cate = st.session_state.cate
+    if cate:
+        st.write(cate["ts"], cate["sql"])
+        st.dataframe(cate["df"], width=750, height=250)
+
+with col2.container(border=True):
+    data = st.session_state.post
+    if data:
+        st.write(data["ts"], data["sql"])
+        st.dataframe(data["df"], width=750)
 
 # with col2:
 #     c1 = st.container(height=700)
