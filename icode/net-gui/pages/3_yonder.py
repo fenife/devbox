@@ -55,7 +55,7 @@ class Yonder(object):
         result =self.db.query(sql)
         return result
 
-    def create_category(self, title, content, user_id, cate_id):
+    def create_post(self, title, content, user_id, cate_id):
         url = "/api/v1/post"
         body = {"title": title,
                 "content": content,
@@ -103,14 +103,6 @@ class Viewer(object):
     def show_user_list(self):
         result = yonder.get_user_list()
         st.session_state.user = result
-        # with col2.container(border=True):
-        #     st.write(datetime.datetime.now(), sql)
-        #     st.dataframe(df, width=750)
-        # st.session_state.user = {
-        #     "ts": datetime.datetime.now(),
-        #     "sql": sql,
-        #     "df": df
-        # }
 
     @st.dialog("Create User")
     def create_user(self):
@@ -127,15 +119,6 @@ class Viewer(object):
     def show_category_list(self):
         result = yonder.get_category_list()
         st.session_state.cate = result
-        # st.session_state.datas.append(df)
-        # with col2.container(border=True):
-        #     st.write(datetime.datetime.now(), sql)
-        #     st.dataframe(df, width=750)
-        # st.session_state.cate = {
-        #     "ts": datetime.datetime.now(),
-        #     "sql": sql,
-        #     "df": df
-        # }
 
     @st.dialog("Create Category")
     def create_category(self):
@@ -151,14 +134,6 @@ class Viewer(object):
     def show_post_list(self):
         result = yonder.get_post_list()
         st.session_state.post = result
-        # with col2.container(border=True):
-        #     st.write(datetime.datetime.now(), sql)
-        #     st.dataframe(df, width=750)
-        # st.session_state.post = {
-        #     "ts": datetime.datetime.now(),
-        #     "sql": sql,
-        #     "df": df
-        # }
 
     @st.dialog("Create Post")
     def create_post(self):
@@ -190,8 +165,9 @@ viewer = Viewer()
 
 #------------------------------------------------------------ 
 # col1
+c1 = col1.container(height=700)
 
-with col1.container(border=True):
+with c1.container(border=True):
     st.markdown("##### user")
     if st.button("all user (db)"):
         viewer.show_user_list()
@@ -199,7 +175,7 @@ with col1.container(border=True):
     if st.button("add user (http)"):
         viewer.create_user()
 
-with col1.container(border=True):
+with c1.container(border=True):
     st.markdown("##### category")
     if st.button("all category (db)"):
         viewer.show_category_list()
@@ -207,7 +183,7 @@ with col1.container(border=True):
     if st.button("add category (http)"):
         viewer.create_category()
 
-with col1.container(border=True):
+with c1.container(border=True):
     st.markdown("##### post")
     if st.button("all post (db)"):
         viewer.show_post_list()
@@ -217,17 +193,12 @@ with col1.container(border=True):
 
 #------------------------------------------------------------ 
 # col2
-
-with col2.container(border=True):
+c2 = col2.container(height=700)
+with c2.container(border=True):
     viewer.view_dataframe(st.session_state.user)
 
-with col2.container(border=True):
+with c2.container(border=True):
     viewer.view_dataframe(st.session_state.cate)
 
-with col2.container(border=True):
+with c2.container(border=True):
     viewer.view_dataframe(st.session_state.post)
-
-# with col2:
-#     c1 = st.container(height=700)
-#     for df in reversed(st.session_state.datas):
-#         c1.dataframe(df, width=750)
