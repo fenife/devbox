@@ -201,9 +201,9 @@ class Viewer(object):
         if data:
             st.write(data.dt, data.sql)
             if len(data.df) < 5:
-                st.dataframe(data.df, width=750)
+                st.dataframe(data.df)
             else:
-                st.dataframe(data.df, width=750, height=220)
+                st.dataframe(data.df, height=210)
 
     def select_cur_cate(self):
         with st.container(border=True):
