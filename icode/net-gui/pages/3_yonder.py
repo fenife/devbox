@@ -76,6 +76,7 @@ st.set_page_config(layout="wide")
 
 if "datas" not in st.session_state:
     st.session_state.datas = []
+
 if "users" not in st.session_state:
     st.session_state.users = None
 if "cates" not in st.session_state:
@@ -83,17 +84,31 @@ if "cates" not in st.session_state:
 if "posts" not in st.session_state:
     st.session_state.posts = None
 
-col1, col2 = st.columns([1, 2], gap="small")
-# c2 = col2.container(height=700)
+if "user" not in st.session_state:
+    st.session_state.user = None
+if "cate" not in st.session_state:
+    st.session_state.cate = None
+if "post" not in st.session_state:
+    st.session_state.post = None
 
 with st.sidebar:
     st.markdown("# Yonder page")
 
     if st.button("clear datas"):
         st.session_state.datas = []
+
         st.session_state.users = None
         st.session_state.cates = None
         st.session_state.posts = None
+
+        st.session_state.user = None
+        st.session_state.cate = None
+        st.session_state.post = None
+
+
+col1, col2 = st.columns([1, 2], gap="small")
+# c2 = col2.container(height=700)
+
 
 ############################################################
 # view
@@ -167,20 +182,25 @@ class Viewer(object):
     def view_dataframe(self, data: DBResult):
         if data:
             st.write(data.dt, data.sql)
-            st.dataframe(data.df, width=750)
+            if len(data.df) < 5:
+                st.dataframe(data.df, width=750)
+            else:
+                st.dataframe(data.df, width=750, height=220)
 
     def select_cur_cate(self):
         with st.container(border=True):
             cate = st.selectbox(label="category", options=yonder.get_select_cates(),
                                 format_func=_format_select_label)
             d = dict(zip(cate._fields, map(str, list(cate))))
-            st.text("cate_id: " + str(cate.id), help=str(d))
+            st.text(f"cate: {cate.id} - {cate.name}", help=str(d))
+            st.session_state.cate = cate
 
 viewer = Viewer()
 
 # ------------------------------------------------------------
 # col1
-c1 = col1.container(height=700)
+# c1 = col1.container(height=700)
+c1 = col1
 
 with c1.container(border=True):
     st.markdown("##### current:")
@@ -212,7 +232,9 @@ with c1.container(border=True):
 
 # ------------------------------------------------------------
 # col2
-c2 = col2.container(height=700)
+# c2 = col2.container(height=700)
+c2 = col2
+
 with c2.container(border=True):
     viewer.view_dataframe(st.session_state.users)
 
