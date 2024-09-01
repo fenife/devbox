@@ -32,11 +32,13 @@ class HttpClient(object):
         except Exception as e:
             exc = e
 
-        status_code = content = None
+        status_code = resp_body = None
         if resp:
             status_code = resp.status_code
-            content = resp.json()
-        print(method, url, "body:", body, params, status_code, content, exc)
+            resp_body = resp.json()
+        logger.info(f"method: {method}, url: {url}, body: {body}, params: {params}, " \
+                    f"status: {status_code}, resp: {resp_body}, except: {exc}")
+        # print(method, url, "body:", body, params, status_code, resp, exc)
         return resp
 
     def get(self, url: str, params: dict = {}):

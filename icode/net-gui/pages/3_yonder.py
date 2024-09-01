@@ -3,6 +3,7 @@ from collections import namedtuple
 import datetime
 import json
 import streamlit as st
+from streamlit.elements.dialog_decorator import F
 from engine.db import DBClient, DBResult
 from engine.http import HttpClient
 from config import Config
@@ -15,11 +16,12 @@ def cache_hash_funcs():
     hash_funcs = {"__main__.Yonder": lambda x: "Yonder"}
     return hash_funcs
 
+
 class Yonder(object):
     def __init__(self) -> None:
         self.db = DBClient(Config.db_conn_str())
         self.http = HttpClient(Config.yonder.host, Config.yonder.port)
-    
+
     def cache_clear(self):
         st.cache_data.clear()
 
@@ -130,6 +132,7 @@ def _format_select_label(r: namedtuple):
     s = f"{r.id}-{r.name}"
     return s
 
+
 class Viewer(object):
     def __init__(self) -> None:
         super().__init__()
@@ -144,11 +147,12 @@ class Viewer(object):
             username = st.text_input(label="username")
             passwd = st.text_input(label="password")
             submitted = st.form_submit_button("Submit")
-            if submitted:
-                resp = yonder.create_user(username, passwd)
-                with st.container(border=True):
-                    st.write("response:")
-                    st.json(resp.json())
+            if not submitted:
+                return 
+            resp = yonder.create_user(username, passwd)
+            with st.container(border=True):
+                st.write("response:")
+                st.json(resp.json())
 
     def show_category_list(self):
         result = yonder.get_category_list()
@@ -159,11 +163,12 @@ class Viewer(object):
         with st.form("cate_form"):
             cate_name = st.text_input(label="category name")
             submitted = st.form_submit_button("Submit")
-            if submitted:
-                resp = yonder.create_category(cate_name)
-                with st.container(border=True):
-                    st.write("response:")
-                    st.json(resp.json())
+            if not submitted:
+                return 
+            resp = yonder.create_category(cate_name)
+            with st.container(border=True):
+                st.write("response:")
+                st.json(resp.json())
 
     def show_post_list(self):
         result = yonder.get_post_list()
@@ -179,17 +184,18 @@ class Viewer(object):
                                 format_func=_format_select_label)
             content = st.text_area(label="content")
             submitted = st.form_submit_button("Submit")
-            if submitted:
-                post = {"title": title,
-                        "content": content,
-                        "user_id": user.id,
-                        "cate_id": cate.id}
-                st.write("post:")
-                st.json(post)
-                # resp = yonder.create_post(title, content, 0, 0)
-                # with st.container(border=True):
-                #     st.write("response:")
-                #     st.json(resp.json())
+            if not submitted:
+                return 
+            post = {"title": title,
+                    "content": content,
+                    "user_id": user.id,
+                    "cate_id": cate.id}
+            st.write("post:")
+            st.json(post)
+            # resp = yonder.create_post(title, content, 0, 0)
+            # with st.container(border=True):
+            #     st.write("response:")
+            #     st.json(resp.json())
 
     def view_dataframe(self, data: DBResult):
         if data:
@@ -201,11 +207,16 @@ class Viewer(object):
 
     def select_cur_cate(self):
         with st.container(border=True):
-            cate = st.selectbox(label="category", options=yonder.get_select_cates(),
+            cate = st.selectbox(label="category", index=None,
+                                options=yonder.get_select_cates(),
                                 format_func=_format_select_label)
+            if not cate:
+                return
             d = dict(zip(cate._fields, map(str, list(cate))))
-            st.text(f"cate: {cate.id} - {cate.name}", help=str(d))
+            # st.text(f"cate: {cate.id} - {cate.name}", help=str(d))
+            st.json(d, expanded=False)
             st.session_state.cate = cate
+
 
 viewer = Viewer()
 
