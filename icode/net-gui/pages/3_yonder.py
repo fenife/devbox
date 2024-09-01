@@ -75,11 +75,11 @@ st.set_page_config(layout="wide")
 if "datas" not in st.session_state:
     st.session_state.datas = []
 if "user" not in st.session_state:
-    st.session_state.user = None
+    st.session_state.users = None
 if "cate" not in st.session_state:
-    st.session_state.cate = None
+    st.session_state.cates = None
 if "post" not in st.session_state:
-    st.session_state.post = None
+    st.session_state.posts = None
 
 col1, col2 = st.columns([1, 2], gap="small")
 # c2 = col2.container(height=700)
@@ -89,9 +89,9 @@ with st.sidebar:
 
     if st.button("clear datas"):
         st.session_state.datas = []
-        st.session_state.user = None
-        st.session_state.cate = None
-        st.session_state.post = None
+        st.session_state.users = None
+        st.session_state.cates = None
+        st.session_state.posts = None
 
 ############################################################
 # view
@@ -102,7 +102,7 @@ class Viewer(object):
 
     def show_user_list(self):
         result = yonder.get_user_list()
-        st.session_state.user = result
+        st.session_state.users = result
 
     @st.dialog("Create User")
     def create_user(self):
@@ -118,7 +118,7 @@ class Viewer(object):
 
     def show_category_list(self):
         result = yonder.get_category_list()
-        st.session_state.cate = result
+        st.session_state.cates = result
 
     @st.dialog("Create Category")
     def create_category(self):
@@ -133,7 +133,7 @@ class Viewer(object):
 
     def show_post_list(self):
         result = yonder.get_post_list()
-        st.session_state.post = result
+        st.session_state.posts = result
 
     @st.dialog("Create Post")
     def create_post(self):
@@ -195,10 +195,10 @@ with c1.container(border=True):
 # col2
 c2 = col2.container(height=700)
 with c2.container(border=True):
-    viewer.view_dataframe(st.session_state.user)
+    viewer.view_dataframe(st.session_state.users)
 
 with c2.container(border=True):
-    viewer.view_dataframe(st.session_state.cate)
+    viewer.view_dataframe(st.session_state.cates)
 
 with c2.container(border=True):
-    viewer.view_dataframe(st.session_state.post)
+    viewer.view_dataframe(st.session_state.posts)
