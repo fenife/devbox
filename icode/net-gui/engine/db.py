@@ -1,10 +1,17 @@
 
+import datetime
 import streamlit as st
 from streamlit.connections import SQLConnection
 from pandas import DataFrame
 from sqlalchemy import create_engine, Engine
 from sqlalchemy.orm import sessionmaker
 
+
+class DBResult(object):
+    def __init__(self, dt: datetime.datetime, sql: str, df: DataFrame) -> None:
+        self.dt = dt        # query timestamp
+        self.sql = sql
+        self.df = df
 
 class DBClient(object):
     def __init__(self, db_conn_str: str) -> None:
@@ -20,9 +27,17 @@ class DBClient(object):
     def session(self):
         return sessionmaker(bind=self._engine)
 
-    def query(self, sql: str, echo: bool):
+    def _query(self, sql: str):
+        print(sql)
         with self.session() as s:
             print(s.query(sql).all())
+
+    def query(self, sql: str, *args, **kwargs) -> DBResult:
+        print(sql)
+        now = datetime.datetime.now()
+        df = self.st_conn.query(sql, ttl=1, *args, **kwargs)
+        result = DBResult(dt=now, sql=sql, df=df)
+        return result
 
     @property
     def st_conn(self) -> SQLConnection:
@@ -35,5 +50,5 @@ class DBClient(object):
         return self._st_conn
 
     def st_query(self, sql: str, *args, **kwargs) -> DataFrame:
-        print(sql)
-        return self.st_conn.query(sql, ttl=1, *args, **kwargs)
+        result = self.query(sql, *args, **kwargs)
+        return result.df
