@@ -1,6 +1,7 @@
 import json
 import requests
 from requests import Response
+from loguru import logger
 
 
 class HttpClient(object):

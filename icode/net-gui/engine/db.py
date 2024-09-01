@@ -1,5 +1,6 @@
 
 import datetime
+from loguru import logger
 import streamlit as st
 from streamlit.connections import SQLConnection
 from pandas import DataFrame
@@ -33,7 +34,7 @@ class DBClient(object):
             print(s.query(sql).all())
 
     def query(self, sql: str, *args, **kwargs) -> DBResult:
-        print(sql)
+        logger.info(sql)
         now = datetime.datetime.now()
         df = self.st_conn.query(sql, ttl=1, *args, **kwargs)
         result = DBResult(dt=now, sql=sql, df=df)

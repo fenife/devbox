@@ -11,12 +11,20 @@ from config import Config
 ############################################################
 # yonder
 
+def cache_hash_funcs():
+    hash_funcs = {"__main__.Yonder": lambda x: "Yonder"}
+    return hash_funcs
+
 class Yonder(object):
     def __init__(self) -> None:
         self.db = DBClient(Config.db_conn_str())
         self.http = HttpClient(Config.yonder.host, Config.yonder.port)
+    
+    def cache_clear(self):
+        st.cache_data.clear()
 
-    # @st.cache_data(ttl=60)
+    # hash_funcs, key: class type
+    @st.cache_data(ttl=10, hash_funcs=cache_hash_funcs())
     def get_user_list(self):
         sql = "select * from users"
         result = self.db.query(sql)
@@ -32,9 +40,10 @@ class Yonder(object):
         url = "/api/v1/user/signup"
         body = {"name": name, "password": passwd}
         resp = self.http.post(url, body=body)
+        self.cache_clear()
         return resp
 
-    # @st.cache_data(ttl=60)
+    @st.cache_data(ttl=10, hash_funcs=cache_hash_funcs())
     def get_category_list(self):
         sql = "select * from categories"
         result = self.db.query(sql)
@@ -50,8 +59,10 @@ class Yonder(object):
         url = "/api/v1/category"
         body = {"name": name}
         resp = self.http.post(url, body=body)
+        self.cache_clear()
         return resp
 
+    @st.cache_data(ttl=10, hash_funcs=cache_hash_funcs())
     def get_post_list(self):
         sql = "select * from posts"
         result = self.db.query(sql)
@@ -64,6 +75,7 @@ class Yonder(object):
                 "cate_id": cate_id,
                 "user_id": user_id}
         resp = self.http.post(url, body=body)
+        self.cache_clear()
         return resp
 
 
