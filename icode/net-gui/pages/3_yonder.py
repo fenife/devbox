@@ -1,5 +1,7 @@
 
+from collections import namedtuple
 import datetime
+import json
 import streamlit as st
 from engine.db import DBClient, DBResult
 from engine.http import HttpClient
@@ -20,10 +22,10 @@ class Yonder(object):
         result = self.db.query(sql)
         return result
 
-    def get_users(self):
+    def get_select_users(self):
         result = self.get_user_list()
         df = result.df
-        users = list(zip(df['id'], df['name']))
+        users = list(df.itertuples(name='User', index=False))
         return users
 
     def create_user(self, name, passwd):
@@ -38,10 +40,10 @@ class Yonder(object):
         result = self.db.query(sql)
         return result
 
-    def get_cates(self):
+    def get_select_cates(self):
         result = self.get_category_list()
         df = result.df
-        cates = list(zip(df['id'], df['name']))
+        cates = list(df.itertuples(name='Cate', index=False))
         return cates
 
     def create_category(self, name):
@@ -52,7 +54,7 @@ class Yonder(object):
 
     def get_post_list(self):
         sql = "select * from posts"
-        result =self.db.query(sql)
+        result = self.db.query(sql)
         return result
 
     def create_post(self, title, content, user_id, cate_id):
@@ -74,11 +76,11 @@ st.set_page_config(layout="wide")
 
 if "datas" not in st.session_state:
     st.session_state.datas = []
-if "user" not in st.session_state:
+if "users" not in st.session_state:
     st.session_state.users = None
-if "cate" not in st.session_state:
+if "cates" not in st.session_state:
     st.session_state.cates = None
-if "post" not in st.session_state:
+if "posts" not in st.session_state:
     st.session_state.posts = None
 
 col1, col2 = st.columns([1, 2], gap="small")
@@ -95,6 +97,11 @@ with st.sidebar:
 
 ############################################################
 # view
+
+
+def _format_select_label(r: namedtuple):
+    s = f"{r.id}-{r.name}"
+    return s
 
 class Viewer(object):
     def __init__(self) -> None:
@@ -139,15 +146,17 @@ class Viewer(object):
     def create_post(self):
         with st.form("post_form"):
             title = st.text_input(label="title")
-            user = st.selectbox(label="user", options=yonder.get_users())
-            cate = st.selectbox(label="category", options=yonder.get_cates())
+            user = st.selectbox(label="user", options=yonder.get_select_users(),
+                                format_func=_format_select_label)
+            cate = st.selectbox(label="category", options=yonder.get_select_cates(),
+                                format_func=_format_select_label)
             content = st.text_area(label="content")
             submitted = st.form_submit_button("Submit")
             if submitted:
                 post = {"title": title,
                         "content": content,
-                        "user_id": user[0],
-                        "cate_id": cate[0]}
+                        "user_id": user.id,
+                        "cate_id": cate.id}
                 st.write("post:")
                 st.json(post)
                 # resp = yonder.create_post(title, content, 0, 0)
@@ -160,12 +169,22 @@ class Viewer(object):
             st.write(data.dt, data.sql)
             st.dataframe(data.df, width=750)
 
+    def select_cur_cate(self):
+        with st.container(border=True):
+            cate = st.selectbox(label="category", options=yonder.get_select_cates(),
+                                format_func=_format_select_label)
+            d = dict(zip(cate._fields, map(str, list(cate))))
+            st.text("cate_id: " + str(cate.id), help=str(d))
 
 viewer = Viewer()
 
-#------------------------------------------------------------ 
+# ------------------------------------------------------------
 # col1
 c1 = col1.container(height=700)
+
+with c1.container(border=True):
+    st.markdown("##### current:")
+    viewer.select_cur_cate()
 
 with c1.container(border=True):
     st.markdown("##### user")
@@ -191,7 +210,7 @@ with c1.container(border=True):
     if st.button("add post (http)"):
         viewer.create_post()
 
-#------------------------------------------------------------ 
+# ------------------------------------------------------------
 # col2
 c2 = col2.container(height=700)
 with c2.container(border=True):
