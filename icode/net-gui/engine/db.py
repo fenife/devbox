@@ -35,4 +35,5 @@ class DBClient(object):
         return self._st_conn
 
     def st_query(self, sql: str, *args, **kwargs) -> DataFrame:
+        print(sql)
         return self.st_conn.query(sql, ttl=1, *args, **kwargs)
