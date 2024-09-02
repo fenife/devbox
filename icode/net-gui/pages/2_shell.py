@@ -37,6 +37,19 @@ with col1:
     if st.button("form"):
         vote("form")
 
+    with st.form("ls grep"):
+        cmd = st.text_input("command")
+        grep = st.text_input("grep")
+        if grep:
+            cmd = f"{cmd} | grep {grep}"
+        submit = st.form_submit_button()
+        if cmd and submit:
+            r = shell.run_cmd(cmd)
+            st.session_state.messages.append({"role": "ai", "content": r.output})
+            # c1.chat_message("ai").code(r.output)
+            st.code(r.output)
+
+
 with col2:
     if "messages" not in st.session_state:
         st.session_state.messages = []
