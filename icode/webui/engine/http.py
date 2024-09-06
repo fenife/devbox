@@ -28,7 +28,7 @@ class HttpResult(object):
         return json.dumps(r)
 
     def curl(self):
-        pass
+        return self._get_curl_code_snippet()
     
     def _get_curl_code_snippet(self):
         """
@@ -65,7 +65,7 @@ class HttpClient(object):
         self._server = "http://{h}:{p}".format(h=host, p=port)
 
     def do(self, method: str, url: str, params: dict = {}, body: dict = {},
-           headers: dict = {}):
+           headers: dict = {}) -> HttpResult:
         headers.update({
             "x-request-id": str(uuid.uuid1()),
             "Content-Type": "application/json"
@@ -107,7 +107,8 @@ class HttpClient(object):
         msg = json.dumps(
             {"msg": "do http request", "req": req_dict, "resp": resp_dict})
         logger.info(msg)
-        return resp
+        result = HttpResult(dt=dt, req=req_dict, resp=resp, exc=exc)
+        return result
 
     def _get_full_path(self, url):
         if not self._server:

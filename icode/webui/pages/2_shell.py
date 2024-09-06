@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 
-import shell
 from engine.shell import ShellResult
 
 st.set_page_config(layout="wide")

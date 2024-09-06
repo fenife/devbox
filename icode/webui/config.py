@@ -24,3 +24,10 @@ class Config(object):
             db=cls.db.database, c=cls.db.charset
         )
         return s
+
+    class local(object):
+        name = "local"
+        host = "127.0.0.1"
+        port = 22
+        user = "feng"
+        passwd = "123"
