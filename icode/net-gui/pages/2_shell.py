@@ -48,6 +48,8 @@ with col1:
             st.session_state.messages.append({"role": "ai", "content": r.output})
             # c1.chat_message("ai").code(r.output)
             st.code(r.output)
+        else:
+            st.warning("empty input")
 
 
 with col2:
