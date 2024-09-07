@@ -9,39 +9,21 @@ from config import Config
 class BaseViewer(object):
 
     def view_dataframe_query(self, data: DBResult):
-        help_str = " f > 1 or f < 2 and f == 3 or f in (1, 2)" \
-                   " and f.str.contains('a') "
+        help_str = " f > 1 or f < 2 and f == 3 \n" \
+                   " or f in (4, 5) and f.str.contains('a') "
         c = st.container()
-        c_q, c_l, c_w = c.columns(spec=[4, 2, 3])
-        query = c_q.text_input("query",
-                               key=f"df:input:query:{data.dt}",
-                               placeholder=f"query: {help_str}",
-                               label_visibility="collapsed")
-        like_input = c_l.text_input("like",
-                                    key=f"df:input:query:like:{data.dt}",
-                                    placeholder=f"like: field: val",
-                                    label_visibility="collapsed")
-        if like_input:
-            try:
-                field, val = like_input.split(":")
-                like_query = f"{field.strip()}.str.contains('{val.strip()}')"
-                if query:
-                    query += f" {like_query}"
-                else:
-                    query = like_query
-            except Exception as e:
-                st.warning(f"{str(e)}, input: {like_input}")
-
-        df = data.df
+        c_q, _ = c.columns(spec=[3, 1])
+        query = c_q.text_input("query", key=f"df:input:query:{data.dt}",
+                               help=help_str, placeholder=f"q: {help_str}")
         query_df = None
-        if query:
-            try:
-                logger.info("df query: %s" % query)
-                st.text(f"df.query({query})")
-                query_df = df.query(query)
-            except Exception as e:
-                c.warning(f"{str(e)}")
-
+        if not query:
+            return query_df
+        try:
+            logger.info("df query: %s" % query)
+            st.text(f"df.query({query})")
+            query_df = data.df.query(query)
+        except Exception as e:
+            c.warning(f"{str(e)}")
         return query_df
 
     def view_dataframe(self, data: DBResult):

@@ -32,3 +32,5 @@ with col1:
     if st.button("form"):
         vote("form")
 
+t = st.text_input("text", help="text")
+st.write(t)
