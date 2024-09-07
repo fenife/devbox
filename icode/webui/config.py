@@ -31,3 +31,10 @@ class Config(object):
         port = 22
         user = "feng"
         passwd = "123"
+
+    class vmc1(object):
+        name = "vmc1"
+        host = "172.18.0.2"
+        port = 22
+        user = "root"
+        passwd = "r123"

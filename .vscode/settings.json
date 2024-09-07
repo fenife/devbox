@@ -2,9 +2,9 @@
     "python.pythonPath": "/wine/venv/icode/bin/python",
     // "python.envFile": "${workspaceFolder}/.env",
     // "terminal.integrated.env.linux": {
-    //     "PYTHONPATH": "${workspaceFolder}/icode/net-gui",
+    //     "PYTHONPATH": "${workspaceFolder}/icode/webui",
     //  },
      "python.analysis.extraPaths": [
-		"${workspaceFolder}/icode/net-gui"
+		"${workspaceFolder}/icode/webui"
 	],
 }

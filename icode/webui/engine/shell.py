@@ -1,38 +1,42 @@
 from typing import List, Union
+import datetime
 import fabric as fab
 from invoke import Result, run
 from streamlit import logger
 
+
 class ShellResult(object):
-    def __init__(self, cli: "ShellClient", result: Result):
-        self._cli = cli
-        self._result = result
+    def __init__(self, dt: datetime.datetime, cli: "ShellClient",
+                 cmd: str, resp: Result):
+        self.dt: datetime.datetime = dt
+        self.cmd: str = cmd
+        self.resp: Result = resp
+        self._cli: "ShellClient" = cli
 
     @property
     def origin(self):
-        return self._result
-
-    @property
-    def pwd(self):
-        return self._cli.pwd
-
-    @property
-    def cmd(self):
-        return self._result.command
+        return self.resp
 
     @property
     def stdout(self):
-        return self._result.stdout
+        return self.resp.stdout
 
     @property
     def stderr(self):
-        return self._result.stderr
+        return self.resp.stderr
 
     @property
     def output(self):
-        # text = "%s # %s\n%s\n" % (self.pwd, self.cmd, self.stdout)
-        text = f"# {self.cmd}\n{self.stdout or self.stderr}"
-        return text
+        """
+        # root @ vm (172.0.0.1) in /wine/devbox/icode [9:25:11] 
+        $ <cmd>
+        """
+        c = self._cli
+        dt_str = self.dt.strftime("%H:%M:%S")
+        prefix = f"{c.user} @ {c.hostname} ({c.host}) in {c.pwd} [{dt_str}]"
+        s = f"{prefix} \n$ {self.cmd}\n{self.stdout or self.stderr}"
+        return s
+
 
 class ShellClient(object):
     CMD_ECHO = "echo"
@@ -85,13 +89,10 @@ class ShellClient(object):
 
         return resp
 
-    def _build_result(self, resp: Result) -> ShellResult:
-        result = ShellResult(cli=self, result=resp)
-        return result
-
-    def run(self, cmd, echo=True) -> ShellResult:
+    def run(self, cmd: str, echo=True) -> ShellResult:
+        dt = datetime.datetime.now()
         resp = self._run(cmd, echo=echo)
-        result = self._build_result(resp)
+        result = ShellResult(dt=dt, cli=self, cmd=cmd, resp=resp)
         return result
 
     def echo(self, echo=False):
@@ -106,9 +107,7 @@ class ShellClient(object):
 
     @property
     def hostname(self):
-        if not self.hostname:
+        if not self._hostname:
             r = self.run("hostname")
             self._hostname = r.stdout.strip()
         return self._hostname
-        
-

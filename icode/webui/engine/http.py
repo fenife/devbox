@@ -78,19 +78,15 @@ class HttpClient(object):
             if params:
                 kwargs["params"] = params
             if body:
-                kwargs["body"] = body
+                kwargs["json"] = body
             if method == "GET":
                 resp = requests.get(url=url, **kwargs)
-                # resp = requests.get(url=url, headers=headers, params=params)
             elif method == "POST":
                 resp = requests.post(url=url, **kwargs)
-                # resp = requests.post(url=url, headers=headers, params=params, json=body)
             elif method == "PUT":
                 resp = requests.put(url=url, **kwargs)
-                # resp = requests.put(url=url, headers=headers, params=params, json=body)
             elif method == "DELETE":
                 resp = requests.delete(url=url, **kwargs)
-                # resp = requests.delete(url=url, headers=headers, params=params, json=body)
             else:
                 exc = Exception("unknown method: %s" % method)
         except Exception as e:
@@ -108,6 +104,7 @@ class HttpClient(object):
             {"msg": "do http request", "req": req_dict, "resp": resp_dict})
         logger.info(msg)
         result = HttpResult(dt=dt, req=req_dict, resp=resp, exc=exc)
+        logger.info(result.curl())
         return result
 
     def _get_full_path(self, url):
@@ -115,18 +112,18 @@ class HttpClient(object):
             return url
         return self._server + url
 
-    def get(self, url: str, params: dict = {}):
+    def get(self, url: str, params: dict = {}) -> HttpResult:
         url = self._get_full_path(url)
         return self.do("GET", url, params=params)
 
-    def post(self, url: str, body: dict = {}, params: dict = {}):
+    def post(self, url: str, body: dict = {}, params: dict = {}) -> HttpResult:
         url = self._get_full_path(url)
         return self.do("POST", url, body=body, params=params)
 
-    def put(self, url: str, body: dict = {}, params: dict = {}):
+    def put(self, url: str, body: dict = {}, params: dict = {}) -> HttpResult:
         url = self._get_full_path(url)
         return self.do("PUT", url, body=body, params=params)
 
-    def delete(self, url: str, body: dict = {}, params: dict = {}):
+    def delete(self, url: str, body: dict = {}, params: dict = {}) -> HttpResult:
         url = self._get_full_path(url)
         return self.do("DELETE", url, body=body, params=params)

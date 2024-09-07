@@ -33,11 +33,9 @@ class UserViewer(BaseViewer):
             passwd = st.text_input(label="password")
             submitted = st.form_submit_button("Submit")
             if not submitted:
-                return 
-            resp = yds.create_user(username, passwd)
-            with st.container(border=True):
-                st.write("response:")
-                st.json(resp.json())
+                return
+            result = yds.create_user(username, passwd)
+            self.view_http_result(result)
 
 
 class CateViewer(BaseViewer):
@@ -55,11 +53,9 @@ class CateViewer(BaseViewer):
             cate_name = st.text_input(label="category name")
             submitted = st.form_submit_button("Submit")
             if not submitted:
-                return 
-            resp = yds.create_category(cate_name)
-            with st.container(border=True):
-                st.write("response:")
-                st.json(resp.json())
+                return
+            result = yds.create_category(cate_name)
+            self.view_http_result(result)
 
 
 class PostViewer(BaseViewer):
@@ -82,14 +78,11 @@ class PostViewer(BaseViewer):
             content = st.text_area(label="content")
             submitted = st.form_submit_button("Submit")
             if not submitted:
-                return 
-            post = {"title": title,
-                    "content": content,
-                    "user_id": user.id,
-                    "cate_id": cate.id}
-            st.write("post:")
-            st.json(post)
+                return
+            result = yds.create_post(title=title, content=content,
+                                     user_id=user.id, cate_id=cate.id)
+            self.view_http_result(result)
 
-    
+
 class YonderViewer(UserViewer, CateViewer, PostViewer):
     pass

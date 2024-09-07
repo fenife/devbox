@@ -10,6 +10,9 @@ class state(object):
     cate = "cate"
     post = "post"
 
+    local_shells = "local_shells"
+    vmc1_shells = "vmc1_shells"
+
     @staticmethod
     def get(key):
         return st.session_state[key]
@@ -30,11 +33,21 @@ class state(object):
             cls.set(attr, None)
 
     @classmethod
+    def clear_shells(cls):
+        shell_attrs = set([cls.local_shells, cls.vmc1_shells])
+        for attr in shell_attrs:
+            cls.set(attr, [])
+
+    @classmethod
     def init_all(cls):
-        attrs = set([cls.users, cls.cates, cls.posts,
-                     cls.user, cls.cate, cls.post])
-        for attr in attrs:
+        data_attrs = set([cls.users, cls.cates, cls.posts,
+                          cls.user, cls.cate, cls.post])
+        for attr in data_attrs:
             cls._init_one(attr, None)
+
+        shell_attrs = set([cls.local_shells, cls.vmc1_shells])
+        for attr in shell_attrs:
+            cls._init_one(attr, [])
 
     @classmethod
     def clear_cache(self):

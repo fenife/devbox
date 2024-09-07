@@ -10,6 +10,15 @@ class BaseViewer(object):
             st.write(data.dt, data.sql)
             st.dataframe(data.df)
 
+    def view_http_result(self, r: HttpResult):
+        if r is None:
+            return 
+        with st.container(border=True):
+            st.write("request:")
+            st.code(r.curl())
+            st.write("response:")
+            st.json(r.json())
+
     # def select_cur_cate(self):
     #     with st.container(border=True):
     #         cate = st.selectbox(label="category", index=None,

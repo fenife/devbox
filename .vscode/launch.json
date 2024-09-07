@@ -10,7 +10,7 @@
             "request": "launch",
             "python": "/wine/venv/icode/bin/python",
             // "program": "${file}",
-            "program": "${workspaceFolder}/icode/net-gui/cmd.py",
+            "program": "${workspaceFolder}/icode/webui/cmd.py",
             "console": "integratedTerminal",
             "justMyCode": true
         },
