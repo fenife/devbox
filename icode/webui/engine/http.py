@@ -16,20 +16,35 @@ class HttpResult(object):
         self.method: str = self.req.get("method", "")
         self.url: str = self.req.get("url", "")
 
-    def json(self):
-        r = {"dt": str(self.dt),
-             "status": None,
-             "data": None,
-             "exception": str(self.exc)}
+    def resp_body(self):
+        resp = self.resp
+        if resp is None:
+            return None
+        data = resp.text
+        try:
+            data = resp.json()
+        except Exception as e:
+            logger.error("decode failed: %s, data: %s" % (e, resp.content))
+        return data
+
+    def resp_info(self):
+        resp = self.resp
+        resp_dict = {"exception": str(self.exc) if self.exc else None,
+                     "status": None, "body": None, "size": None}
         if self.resp is not None:
-            r["status"] = self.resp.status_code
-            r["data"] = self.resp.json() if len(self.resp.content) > 0 else None
-        
+            resp_dict["status"] = resp.status_code
+            resp_dict["body"] = self.resp_body()
+            resp_dict["size"] = len(resp.content)
+        return resp_dict
+
+    def json(self):
+        r = {"dt": str(self.dt)}
+        r.update(self.resp_info())
         return json.dumps(r)
 
     def curl(self):
         return self._get_curl_code_snippet()
-    
+
     def _get_curl_code_snippet(self):
         """
         curl -X POST 'service.local:8000/api/v1/user/signup' \
@@ -94,16 +109,10 @@ class HttpClient(object):
 
         req_dict = {"method": method, "url": url, "params": params,
                     "body": body, "headers": headers}
-        resp_dict = {"exception": str(exc) if exc else None,
-                     "status": None, "data": None, "size": None}
-        if resp is not None:
-            resp_dict["status"] = resp.status_code
-            resp_dict["size"] = len(resp.content)
-            resp_dict["data"] = resp.json() if len(resp.content) > 0 else None
-        msg = json.dumps(
-            {"msg": "do http request", "req": req_dict, "resp": resp_dict})
-        logger.info(msg)
         result = HttpResult(dt=dt, req=req_dict, resp=resp, exc=exc)
+        msg = json.dumps({"msg": "do http request",
+                          "req": req_dict, "resp": result.resp_info()})
+        logger.info(msg)
         logger.info(result.curl())
         return result
 

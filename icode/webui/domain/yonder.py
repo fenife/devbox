@@ -52,7 +52,6 @@ class CateDomain(BaseDomainService):
         url = "/api/v1/category"
         body = {"name": name}
         resp = self.http.post(url, body=body)
-        self.cache_clear()
         return resp
 
 
@@ -71,7 +70,6 @@ class PostDomain(BaseDomainService):
                 "cate_id": cate_id,
                 "user_id": user_id}
         resp = self.http.post(url, body=body)
-        self.cache_clear()
         return resp
 
 

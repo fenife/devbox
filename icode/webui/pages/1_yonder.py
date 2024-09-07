@@ -26,26 +26,26 @@ c_user, c_cate, c_post = st.columns(spec=spec, gap="small")
 
 with c_user.container(border=True):
     st.markdown("##### user")
-    if st.button("all user (db)"):
+    if st.button("users (db)"):
         viewer.get_users()
 
-    if st.button("add user (http)"):
+    if st.button("add user"):
         viewer.create_user()
 
 with c_cate.container(border=True):
     st.markdown("##### category")
-    if st.button("all category (db)"):
+    if st.button("categories (db)"):
         viewer.get_cates()
 
-    if st.button("add category (http)"):
+    if st.button("add category"):
         viewer.create_category()
 
 with c_post.container(border=True):
     st.markdown("##### post")
-    if st.button("all post (db)"):
+    if st.button("posts (db)"):
         viewer.get_posts()
 
-    if st.button("add post (http)"):
+    if st.button("add post"):
         viewer.create_post()
 
 # ------------------------------------------------------------
