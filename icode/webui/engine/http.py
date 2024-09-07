@@ -15,26 +15,29 @@ class HttpResult(object):
         self.exc: Exception = exc
         self.method: str = self.req.get("method", "")
         self.url: str = self.req.get("url", "")
+        self._resp_body = None
 
     def resp_body(self):
-        resp = self.resp
-        if resp is None:
+        if self._resp_body:
+            return self._resp_body
+
+        if self.resp is None:
             return None
-        data = resp.text
+        data = self.resp.text
         try:
-            data = resp.json()
+            data = self.resp.json()
         except Exception as e:
-            logger.error("decode failed: %s, data: %s" % (e, resp.content))
+            logger.error("decode error: %s, data: %s" % (e, self.resp.content))
+        self._resp_body = data
         return data
 
     def resp_info(self):
-        resp = self.resp
         resp_dict = {"exception": str(self.exc) if self.exc else None,
                      "status": None, "body": None, "size": None}
         if self.resp is not None:
-            resp_dict["status"] = resp.status_code
+            resp_dict["status"] = self.resp.status_code
             resp_dict["body"] = self.resp_body()
-            resp_dict["size"] = len(resp.content)
+            resp_dict["size"] = len(self.resp.content)
         return resp_dict
 
     def json(self):
@@ -47,7 +50,7 @@ class HttpResult(object):
 
     def _get_curl_code_snippet(self):
         """
-        curl -X POST 'service.local:8000/api/v1/user/signup' \
+        curl -i -X POST 'service.local:8000/api/v1/user/signup' \
         --header 'Content-Type: application/json' \
         -d '{
             "name": "user1",
@@ -64,7 +67,7 @@ class HttpResult(object):
                 params.append(f"{k}={v}")
         if params:
             url += ','.join(params)
-        s = f"curl -X {self.method} '{self.url}'"
+        s = f"curl -i -X {self.method} '{self.url}'"
         if req.get('headers'):
             for k, v in req['headers'].items():
                 s += f" \\\n--header '{k}: {v}' "
@@ -94,6 +97,7 @@ class HttpClient(object):
                 kwargs["params"] = params
             if body:
                 kwargs["json"] = body
+
             if method == "GET":
                 resp = requests.get(url=url, **kwargs)
             elif method == "POST":

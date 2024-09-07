@@ -23,13 +23,19 @@ class VmShellViewer(object):
         return _label_to_state_shell_key.get(label)
 
     def view_button_cmd(self, label: str):
+        sk = self._get_state_key(label=label)
         btn_cmd = ""
-        spec = [0.5, 1, 1, 2, 1, 1, 1]
         with st.container(border=True):
-            c_ls, c_ipt, c_ipset, c_grep, _, _, _ = st.columns(
-                spec, gap="small")
+            spec = [0.5, 0.6, 0.5, 1, 1, 2, 1, 1, 1]
+            c_ls, c_pwd, c_ip, c_ipt, c_ipset, c_grep, _, _, c_clear = \
+                st.columns(spec, gap="small")
+
             if c_ls.button("ls", key=f"cmd:button:ls:{label}"):
                 btn_cmd = "ls"
+            if c_pwd.button("pwd", key=f"cmd:button:pwd:{label}"):
+                btn_cmd = "pwd"
+            if c_ip.button("ip", key=f"cmd:button:ip:{label}"):
+                btn_cmd = "ip addr"
             if c_ipt.button("iptables", key=f"cmd:button:iptables:{label}"):
                 btn_cmd = "iptables -nvL"
             if c_ipset.button("ipset", key=f"cmd:button:ipset:{label}"):
@@ -37,6 +43,9 @@ class VmShellViewer(object):
             grep = c_grep.text_input("grep", key=f"cmd:button:grep:{label}",
                                      placeholder="grep",
                                      label_visibility="collapsed")
+            if c_clear.button("clear", key=f"cmd:button:clear:{label}"):
+                state.set(sk, [])
+
             if btn_cmd and grep:
                 btn_cmd += f" | grep -v grep | grep {grep}"
         return btn_cmd
@@ -69,4 +78,3 @@ class VmShellViewer(object):
         with st.container(border=True):
             for r in reversed(st.session_state[sk]):
                 st.code(r.output)
-

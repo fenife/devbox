@@ -15,7 +15,7 @@ class BaseViewer(object):
             return 
         with st.container(border=True):
             st.write("request:")
-            st.code(r.curl())
+            st.code(r.curl(), wrap_lines=True)
             st.write("response:")
             st.json(r.json())
 
