@@ -1,5 +1,7 @@
 
 import datetime
+import inspect
+from typing import NamedTuple, List
 from loguru import logger
 import streamlit as st
 from streamlit.connections import SQLConnection
@@ -15,6 +17,21 @@ class DBResult(object):
         self.sql = sql
         self.df = df
         self.label = label
+        self.desc = ""
+        self.caller = inspect.stack()[2].function
+
+
+    def items(self, name: str = "", is_reversed: bool = False) -> List[NamedTuple]:
+        """
+        return namedtuple list from dataframe
+        """
+        if not name:
+            name = self.label
+        df = self.df
+        if is_reversed:
+            df = self.df[::-1].reset_index(drop=True)
+        d = list(df.itertuples(name=name))
+        return d
 
 
 class DBClient(object):
