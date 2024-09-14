@@ -24,13 +24,10 @@ t_user, t_cate, t_page = st.tabs(["user", "category", "post"])
 
 
 with t_user.container(border=True):
-    viewer.view_user_buttons()
-    viewer.show_users()
+    viewer.view_users()
 
 with t_cate.container(border=True):
-    viewer.view_cate_buttons()
-    viewer.show_cates()
+    viewer.view_cates()
 
 with t_page.container(border=True):
-    viewer.view_post_buttons()
-    viewer.show_posts()
+    viewer.view_posts()

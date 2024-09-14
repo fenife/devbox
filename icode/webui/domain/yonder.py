@@ -25,8 +25,7 @@ class UserDomain(BaseDomainService):
 
     def get_select_users(self):
         result = self.get_users()
-        users = list(result.df.itertuples(name=vo.nt.User))
-        return users
+        return result.items()
 
     def create_user(self, name, passwd):
         url = "/api/v1/user/signup"
@@ -45,8 +44,7 @@ class CateDomain(BaseDomainService):
 
     def get_select_cates(self):
         result = self.get_cates()
-        cates = list(result.df.itertuples(name=vo.nt.Category))
-        return cates
+        return result.items()
 
     def create_category(self, name):
         url = "/api/v1/category"
