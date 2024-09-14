@@ -12,7 +12,7 @@ st.set_page_config(layout="wide")
 
 
 with st.sidebar:
-    st.markdown("# Shell page")
+    st.markdown("# Vm page")
 
     clear = st.button("clear shell")
     if clear:
@@ -21,7 +21,7 @@ with st.sidebar:
 
 # ------------------------------------------------------------
 
-t_local, t_vmc1, t_dev = st.tabs(["local", "vmc1", "dev"])
+t_vmc1, t_local, t_dev = st.tabs(["vmc1", "local", "dev"])
 
 
 with t_local:

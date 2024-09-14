@@ -1,3 +1,4 @@
+import inspect
 from loguru import logger
 from pandas.core.arrays.categorical import contains
 import streamlit as st
@@ -9,18 +10,36 @@ from config import Config
 class BaseViewer(object):
 
     def view_dataframe_query(self, data: DBResult):
+        caller = inspect.stack()[2].function
+        label = f"{caller}:{data.label}"
         help_str = " f > 1 or f < 2 and f == 3 \n" \
                    " or f in (4, 5) and f.str.contains('a') "
-        c = st.container()
-        c_q, _ = c.columns(spec=[3, 1])
-        query = c_q.text_input("query", key=f"df:input:query:{data.dt}",
+
+        c = st.container(border=True)
+        c_q, c_f, c_k, _ = c.columns(spec=[3, 1, 1, 1])
+        query = c_q.text_input("query", key=f"df:input:query:{label}",
                                help=help_str, placeholder=f"q: {help_str}")
+        field = c_f.selectbox(label="field",
+                              key=f"df:selectbox:field:{label}",
+                              options=data.df.columns)
+        kw = c_k.text_input(label="contains",
+                            key=f"df:input:keywrod:{label}",
+                            placeholder="keyword")
+        if field and kw:
+            like_query = f"{field}.notnull() and {field}.str.contains('{kw}')" 
+            if query:
+                if query.strip().endswith("and") or query.strip().endswith("or"):
+                    query += " "
+                else:
+                    query += " and "
+            query += like_query
+
         query_df = None
         if not query:
             return query_df
         try:
             logger.info("df query: %s" % query)
-            st.text(f"df.query({query})")
+            c.text(f"df.query({query})")
             query_df = data.df.query(query)
         except Exception as e:
             c.warning(f"{str(e)}")

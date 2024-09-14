@@ -7,7 +7,7 @@ st.set_page_config(layout="wide")
 df = pd.DataFrame(np.random.randn(50, 20), columns=("col %d" % i for i in range(20)))
 
 with st.sidebar:
-    st.markdown("# Net page")
+    st.markdown("# Tool page")
                 
     clear = st.button("clear shell")
     if clear:

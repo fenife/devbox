@@ -20,44 +20,17 @@ with st.sidebar:
 
 # ------------------------------------------------------------
 
-spec = [1, 1, 1]
-c_user, c_cate, c_post = st.columns(spec=spec, gap="small")
-
-
-with c_user.container(border=True):
-    st.markdown("##### user")
-    if st.button("users (db)"):
-        viewer.get_users()
-
-    if st.button("add user"):
-        viewer.create_user()
-
-with c_cate.container(border=True):
-    st.markdown("##### category")
-    if st.button("categories (db)"):
-        viewer.get_cates()
-
-    if st.button("add category"):
-        viewer.create_category()
-
-with c_post.container(border=True):
-    st.markdown("##### post")
-    if st.button("posts (db)"):
-        viewer.get_posts()
-
-    if st.button("add post"):
-        viewer.create_post()
-
-# ------------------------------------------------------------
-
 t_user, t_cate, t_page = st.tabs(["user", "category", "post"])
 
 
 with t_user.container(border=True):
+    viewer.view_user_buttons()
     viewer.show_users()
 
 with t_cate.container(border=True):
+    viewer.view_cate_buttons()
     viewer.show_cates()
 
 with t_page.container(border=True):
+    viewer.view_post_buttons()
     viewer.show_posts()

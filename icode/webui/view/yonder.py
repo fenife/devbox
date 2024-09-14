@@ -22,6 +22,16 @@ class UserViewer(BaseViewer):
     def get_users(self):
         users = yds.get_users()
         state.set(state.users, users)
+    
+    def view_user_buttons(self):
+        with st.container(border=True):
+            c1, c2, _, _, _, _, _ = st.columns(7)
+            # st.markdown("##### user")
+            if c1.button("users (db)"):
+                self.get_users()
+
+            if c2.button("add user"):
+                self.create_user()
 
     def show_users(self):
         self.view_dataframe(state.get(state.users))
@@ -44,6 +54,15 @@ class CateViewer(BaseViewer):
         cates = yds.get_cates()
         state.set(state.cates, cates)
 
+    def view_cate_buttons(self):
+        with st.container(border=True):
+            c1, c2, _, _, _, _, _ = st.columns(7)
+            if c1.button("categories (db)"):
+                self.get_cates()
+
+            if c2.button("add category"):
+                self.create_category()
+                
     def show_cates(self):
         self.view_dataframe(state.get(state.cates))
 
@@ -63,6 +82,15 @@ class PostViewer(BaseViewer):
     def get_posts(self):
         posts = yds.get_posts()
         state.set(state.posts, posts)
+
+    def view_post_buttons(self):
+        with st.container(border=True):
+            c1, c2, _, _, _, _, _ = st.columns(7)
+            if c1.button("posts (db)"):
+                self.get_posts()
+
+            if c2.button("add post"):
+                self.create_post()
 
     def show_posts(self):
         self.view_dataframe(state.get(state.posts))

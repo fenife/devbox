@@ -20,7 +20,7 @@ class UserDomain(BaseDomainService):
     @st.cache_data(ttl=CACHE_TTL, hash_funcs=cache_hash_funcs)
     def get_users(self):
         sql = "select * from users"
-        result = self.db.query(sql)
+        result = self.db.query(sql, label=vo.nt.User)
         return result
 
     def get_select_users(self):
@@ -40,7 +40,7 @@ class CateDomain(BaseDomainService):
     @st.cache_data(ttl=CACHE_TTL, hash_funcs=cache_hash_funcs)
     def get_cates(self):
         sql = "select * from categories"
-        result = self.db.query(sql)
+        result = self.db.query(sql, label=vo.nt.Category)
         return result
 
     def get_select_cates(self):
@@ -60,7 +60,7 @@ class PostDomain(BaseDomainService):
     @st.cache_data(ttl=CACHE_TTL, hash_funcs=cache_hash_funcs)
     def get_posts(self):
         sql = "select * from posts"
-        result = self.db.query(sql)
+        result = self.db.query(sql, label=vo.nt.Post)
         return result
 
     def create_post(self, title, content, user_id, cate_id):

@@ -9,10 +9,13 @@ from sqlalchemy.orm import sessionmaker
 
 
 class DBResult(object):
-    def __init__(self, dt: datetime.datetime, sql: str, df: DataFrame) -> None:
+    def __init__(self, dt: datetime.datetime, sql: str,
+                 df: DataFrame, label: str = "") -> None:
         self.dt = dt        # query timestamp
         self.sql = sql
         self.df = df
+        self.label = label
+
 
 class DBClient(object):
     def __init__(self, db_conn_str: str) -> None:
@@ -33,11 +36,11 @@ class DBClient(object):
         with self.session() as s:
             print(s.query(sql).all())
 
-    def query(self, sql: str, *args, **kwargs) -> DBResult:
+    def query(self, sql: str, label="", *args, **kwargs) -> DBResult:
         logger.info(sql)
         now = datetime.datetime.now()
         df = self.st_conn.query(sql, ttl=1, *args, **kwargs)
-        result = DBResult(dt=now, sql=sql, df=df)
+        result = DBResult(dt=now, sql=sql, df=df, label=label)
         return result
 
     @property
@@ -50,6 +53,6 @@ class DBClient(object):
             )
         return self._st_conn
 
-    def st_query(self, sql: str, *args, **kwargs) -> DataFrame:
-        result = self.query(sql, *args, **kwargs)
+    def st_query(self, sql: str, label="", *args, **kwargs) -> DataFrame:
+        result = self.query(sql, label=label, *args, **kwargs)
         return result.df
