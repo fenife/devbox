@@ -61,7 +61,7 @@ class PostDomain(BaseDomainService):
         result = self.db.query(sql, label=vo.nt.Post)
         return result
 
-    def create_post(self, title, content, user_id, cate_id):
+    def create_post(self, title, title_en, content, user_id, cate_id):
         url = "/api/v1/post"
         body = {"title": title,
                 "content": content,

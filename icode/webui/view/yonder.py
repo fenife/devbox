@@ -26,7 +26,7 @@ class UserViewer(BaseViewer):
     def get_users(self):
         users = yds.get_users()
         state.set(state.users, users)
-    
+
     def view_user_buttons(self):
         with st.container(border=True):
             cols = st.columns(7)
@@ -102,16 +102,21 @@ class PostViewer(BaseViewer):
     def create_post(self):
         with st.form("form:create_post"):
             title = st.text_input(label="title")
-            user = st.selectbox(label="user", options=yds.get_select_users(),
+            title_en = st.text_input(label="title_en")
+            user = st.selectbox(label="user", index=None,
+                                options=yds.get_select_users(),
                                 format_func=_format_select_label)
-            cate = st.selectbox(label="category", options=yds.get_select_cates(),
+            cate = st.selectbox(label="category", index=None,
+                                options=yds.get_select_cates(),
                                 format_func=_format_select_label)
             content = st.text_area(label="content")
             submitted = st.form_submit_button("Submit")
             if not submitted:
                 return
-            result = yds.create_post(title=title, content=content,
-                                     user_id=user.id, cate_id=cate.id)
+            result = yds.create_post(title=title, title_en=title_en,
+                                     content=content,
+                                     user_id=user.id if user else "",
+                                     cate_id=cate.id if cate else "")
             self.view_http_result(result)
 
 
